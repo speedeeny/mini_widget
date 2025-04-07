@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ministranti Widget</title>
+</head>
+<body>
+  <div id="ministranti-widget">
+    <h3>Ministranti tento týden:</h3>
+    <p id="skupina"></p>
+  </div>
+
+  <script>
+    // Funkce pro zjištění, kdo má službu
+    function zjistiSlužbu() {
+      // Získáme aktuální datum
+      const dnes = new Date();
+      
+      // Vytvoříme datum začátku, kdy začali ministranti (například 1.1.2025)
+      const zacatek = new Date('2025-01-01'); 
+      
+      // Spočítáme rozdíl v milisekundách mezi dnešním datem a začátkem
+      const rozdil = dnes - zacatek;
+      
+      // Spočítáme počet týdnů od začátku
+      const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
+      
+      // Pokud je počet týdnů sudý, mají službu kluci, pokud lichý, mají holky
+      const skupina = (tydny % 2 === 0) ? "Kluci" : "Holky";
+      
+      // Zobrazíme výsledek na stránce
+      document.getElementById('skupina').textContent = skupina;
+    }
+
+    // Zavoláme funkci při načtení stránky
+    zjistiSlužbu();
+  </script>
+</body>
+</html>
