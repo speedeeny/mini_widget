@@ -4,6 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ministranti Widget</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    #ministranti-widget {
+      text-align: center;
+      font-size: 24px;
+    }
+  </style>
 </head>
 <body>
   <div id="ministranti-widget">
@@ -16,6 +30,14 @@
     function zjistiSlužbu() {
       // Získáme aktuální datum
       const dnes = new Date();
+
+      // Získáme aktuální den v týdnu (0 = Neděle, 1 = Pondělí, ..., 6 = Sobota)
+      const dayOfWeek = dnes.getDay();
+
+      // Pokud je dnešní den čtvrtek nebo později, nastavíme datum na příští týden
+      if (dayOfWeek >= 4) { // 4 represents Thursday
+        dnes.setDate(dnes.getDate() + (7 - dayOfWeek));
+      }
 
       // Vytvoříme datum začátku, kdy začali ministranti (například 1.1.2025)
       const zacatek = new Date('2025-01-01'); 
@@ -30,9 +52,8 @@
       const skupina = (tydny % 2 === 0) ? "Kluci" : "Holky";
 
       // Získáme datum středy v tomto týdnu
-      const dayOfWeek = dnes.getDay();
       const wednesday = new Date(dnes);
-      wednesday.setDate(dnes.getDate() + (3 - dayOfWeek + 7) % 7); // 3 represents Wednesday
+      wednesday.setDate(dnes.getDate() + (3 - wednesday.getDay() + 7) % 7); // 3 represents Wednesday
 
       // Formátování data středy
       const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
