@@ -16,21 +16,30 @@
     function zjistiSlužbu() {
       // Získáme aktuální datum
       const dnes = new Date();
-      
+
       // Vytvoříme datum začátku, kdy začali ministranti (například 1.1.2025)
       const zacatek = new Date('2025-01-01'); 
-      
+
       // Spočítáme rozdíl v milisekundách mezi dnešním datem a začátkem
       const rozdil = dnes - zacatek;
-      
+
       // Spočítáme počet týdnů od začátku
       const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
-      
+
       // Pokud je počet týdnů sudý, mají službu kluci, pokud lichý, mají holky
       const skupina = (tydny % 2 === 0) ? "Kluci" : "Holky";
-      
+
+      // Získáme datum středy v tomto týdnu
+      const dayOfWeek = dnes.getDay();
+      const wednesday = new Date(dnes);
+      wednesday.setDate(dnes.getDate() + (3 - dayOfWeek + 7) % 7); // 3 represents Wednesday
+
+      // Formátování data středy
+      const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+      const formattedDate = wednesday.toLocaleDateString('cs-CZ', options);
+
       // Zobrazíme výsledek na stránce
-      document.getElementById('skupina').textContent = skupina;
+      document.getElementById('skupina').textContent = `Tuto středu ${formattedDate} ministrují ${skupina}`;
     }
 
     // Zavoláme funkci při načtení stránky
