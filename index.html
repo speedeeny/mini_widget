@@ -12,15 +12,15 @@
       height: 100vh;
       margin: 0;
       font-family: 'Times New Roman', Times, serif;
-      background-color: #ffffff; /* Set background color to #ebeded */
-      color: #393939; /* Set text color to #393939 */
+      background-color: #ffffff;
+      color: #393939;
     }
     #ministranti-widget {
       text-align: center;
-      font-size: calc(72px * 2 / 3); /* Adjust font size to two-thirds of its original size */
+      font-size: calc(72px * 2 / 3);
     }
     .holky {
-      color: #DA70D6; /* Darker purple color */
+      color: #DA70D6;
       font-weight: bold;
     }
     .kluci {
@@ -31,35 +31,39 @@
 </head>
 <body>
   <div id="ministranti-widget">
-    <h3>Ministrují tento týden:</h3>
-    <p id="skupina"></p>
+    <h3>Ministrují:</h3>
+    <div id="skupina"></div>
   </div>
 
   <script>
-    function zjistiSlužbu() {
+    function zjistiSlužby() {
       const dnes = new Date();
-
-      // Najdeme středu v aktuálním týdnu
-      const wednesday = new Date(dnes);
-      const dayOfWeek = dnes.getDay(); // 0 = neděle, 1 = pondělí, ..., 6 = sobota
-      const deltaToWednesday = (3 - dayOfWeek + 7) % 7; // 3 je středa
-      wednesday.setDate(dnes.getDate() + deltaToWednesday);
-
-      // Počítáme týdny od 1.1.2025 podle středy
-      const zacatek = new Date('2025-01-01');
-      const rozdil = wednesday - zacatek;
-      const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
-
-      const skupina = (tydny % 2 === 0) ? "kluci" : "holky";
-
-      const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-      const formattedDate = wednesday.toLocaleDateString('cs-CZ', options);
-
       const skupinaElement = document.getElementById('skupina');
-      skupinaElement.innerHTML = `Tuto středu ${formattedDate} ministrují <span class="${skupina}">${skupina}</span>.`;
+      const zacatek = new Date('2025-01-01');
+      const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+
+      let html = '';
+      for (let i = 0; i < 3; i++) {
+        // Zjistíme středu i-tého týdne
+        const datum = new Date(dnes);
+        const dayOfWeek = datum.getDay();
+        const deltaToWednesday = (3 - dayOfWeek + 7) % 7;
+        datum.setDate(dnes.getDate() + deltaToWednesday + i * 7);
+
+        // Výpočet týdnů od začátku
+        const rozdil = datum - zacatek;
+        const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
+
+        const skupina = (tydny % 2 === 0) ? "kluci" : "holky";
+        const datumText = datum.toLocaleDateString('cs-CZ', options);
+
+        html += `<p>Středa ${datumText} – <span class="${skupina}">${skupina}</span></p>`;
+      }
+
+      skupinaElement.innerHTML = html;
     }
 
-    zjistiSlužbu();
+    zjistiSlužby();
   </script>
 </body>
 </html>
