@@ -85,7 +85,7 @@
 
         const rozdil = datum - zacatek;
         const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
-        const skupina = (tydny % 2 === 0) ? "kluci" : "holky";
+        const skupina = (tydny % 2 === 0) ? "holky" : "kluci";
         const datumText = datum.toLocaleDateString('cs-CZ', options);
 
         html += `<p class="tyden-${i}">Středa ${datumText} – <span class="${skupina}">${skupina}</span></p>`;
