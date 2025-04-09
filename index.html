@@ -15,32 +15,53 @@
       background-color: #ffffff;
       color: #393939;
     }
+
     #ministranti-widget {
+      background-color: #f8f8f8;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       text-align: center;
       font-size: calc(72px * 2 / 3);
+      max-width: 90%;
     }
+
     .holky {
       color: #DA70D6;
       font-weight: bold;
     }
+
     .kluci {
       color: green;
       font-weight: bold;
     }
-    .tyden-0 {
-      font-size: 100%;
+
+    .tyden-0 { font-size: 100%; }
+    .tyden-1 { font-size: 80%; }
+    .tyden-2 { font-size: 70%; }
+
+    #skupina p {
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUp 0.6s ease forwards;
+      margin: 0.4em 0;
     }
-    .tyden-1 {
-      font-size: 80%;
-    }
-    .tyden-2 {
-      font-size: 70%;
+
+    #skupina p:nth-child(1) { animation-delay: 0s; }
+    #skupina p:nth-child(2) { animation-delay: 0.2s; }
+    #skupina p:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
 <body>
   <div id="ministranti-widget">
-    <h3>Kdo má službu?</h3>
+    <h3>⛪ Kdo má službu?</h3>
     <div id="skupina"></div>
   </div>
 
@@ -51,7 +72,6 @@
       const zacatek = new Date('2025-01-01');
       const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
 
-      // Najdeme středu aktuálního týdne
       const dayOfWeek = dnes.getDay();
       const deltaToWednesday = (3 - dayOfWeek + 7) % 7;
       const prvniStreda = new Date(dnes);
@@ -60,7 +80,6 @@
       let html = '';
 
       for (let i = 0; i < 3; i++) {
-        // Středa v aktuálním + i-tém týdnu
         const datum = new Date(prvniStreda);
         datum.setDate(prvniStreda.getDate() + i * 7);
 
