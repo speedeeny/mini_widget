@@ -27,11 +27,20 @@
       color: green;
       font-weight: bold;
     }
+    .tyden-0 {
+      font-size: 100%;
+    }
+    .tyden-1 {
+      font-size: 80%;
+    }
+    .tyden-2 {
+      font-size: 60%;
+    }
   </style>
 </head>
 <body>
   <div id="ministranti-widget">
-    <h3>Ministrují:</h3>
+    <h3>Kdo má službu?</h3>
     <div id="skupina"></div>
   </div>
 
@@ -42,22 +51,25 @@
       const zacatek = new Date('2025-01-01');
       const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
 
-      let html = '';
-      for (let i = 0; i < 3; i++) {
-        // Zjistíme středu i-tého týdne
-        const datum = new Date(dnes);
-        const dayOfWeek = datum.getDay();
-        const deltaToWednesday = (3 - dayOfWeek + 7) % 7;
-        datum.setDate(dnes.getDate() + deltaToWednesday + i * 7);
+      // Najdeme středu aktuálního týdne
+      const dayOfWeek = dnes.getDay();
+      const deltaToWednesday = (3 - dayOfWeek + 7) % 7;
+      const prvniStreda = new Date(dnes);
+      prvniStreda.setDate(dnes.getDate() + deltaToWednesday);
 
-        // Výpočet týdnů od začátku
+      let html = '';
+
+      for (let i = 0; i < 3; i++) {
+        // Středa v aktuálním + i-tém týdnu
+        const datum = new Date(prvniStreda);
+        datum.setDate(prvniStreda.getDate() + i * 7);
+
         const rozdil = datum - zacatek;
         const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
-
         const skupina = (tydny % 2 === 0) ? "kluci" : "holky";
         const datumText = datum.toLocaleDateString('cs-CZ', options);
 
-        html += `<p>Středa ${datumText} – <span class="${skupina}">${skupina}</span></p>`;
+        html += `<p class="tyden-${i}">Středa ${datumText} – <span class="${skupina}">${skupina}</span></p>`;
       }
 
       skupinaElement.innerHTML = html;
