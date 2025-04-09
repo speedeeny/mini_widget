@@ -36,45 +36,29 @@
   </div>
 
   <script>
-    // Funkce pro zjištění, kdo má službu
     function zjistiSlužbu() {
-      // Získáme aktuální datum
       const dnes = new Date();
 
-      // Získáme aktuální den v týdnu (0 = Neděle, 1 = Pondělí, ..., 6 = Sobota)
-      const dayOfWeek = dnes.getDay();
+      // Najdeme středu v aktuálním týdnu
+      const wednesday = new Date(dnes);
+      const dayOfWeek = dnes.getDay(); // 0 = neděle, 1 = pondělí, ..., 6 = sobota
+      const deltaToWednesday = (3 - dayOfWeek + 7) % 7; // 3 je středa
+      wednesday.setDate(dnes.getDate() + deltaToWednesday);
 
-      // Pokud je dnešní den čtvrtek nebo později, nastavíme datum na příští týden
-      if (dayOfWeek >= 4) { // 4 represents Thursday
-        dnes.setDate(dnes.getDate() + (7 - dayOfWeek));
-      }
-
-      // Vytvoříme datum začátku, kdy začali ministranti (například 1.1.2025)
-      const zacatek = new Date('2025-01-01'); 
-
-      // Spočítáme rozdíl v milisekundách mezi dnešním datem a začátkem
-      const rozdil = dnes - zacatek;
-
-      // Spočítáme počet týdnů od začátku
+      // Počítáme týdny od 1.1.2025 podle středy
+      const zacatek = new Date('2025-01-01');
+      const rozdil = wednesday - zacatek;
       const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
 
-      // Pokud je počet týdnů sudý, mají službu kluci, pokud lichý, mají holky
       const skupina = (tydny % 2 === 0) ? "kluci" : "holky";
 
-      // Získáme datum středy v tomto týdnu
-      const wednesday = new Date(dnes);
-      wednesday.setDate(dnes.getDate() + (3 - wednesday.getDay() + 7) % 7); // 3 represents Wednesday
-
-      // Formátování data středy
       const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
       const formattedDate = wednesday.toLocaleDateString('cs-CZ', options);
 
-      // Zobrazíme výsledek na stránce
       const skupinaElement = document.getElementById('skupina');
       skupinaElement.innerHTML = `Tuto středu ${formattedDate} ministrují <span class="${skupina}">${skupina}</span>.`;
     }
 
-    // Zavoláme funkci při načtení stránky
     zjistiSlužbu();
   </script>
 </body>
