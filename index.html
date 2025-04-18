@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ministranti Widget</title>
   <style>
     body {
@@ -28,7 +28,7 @@
     }
 
     h3 {
-      font-size: 2.2rem;
+      font-size: 2.4rem;
     }
 
     .holky {
@@ -50,7 +50,7 @@
     .tyden-1 { font-size: 75%; }
     .tyden-2 { font-size: 65%; }
 
-    #skupina p, #info-box p, #vyjimky ul, #info-box h4, h3 {
+    #skupina p, #info-box p, #info-box h4, h3, #vyjimky ul li {
       opacity: 0;
       transform: translateY(10px);
       animation: fadeInUp 0.4s ease forwards;
@@ -89,7 +89,7 @@
       }
 
       .tyden-0, .tyden-1, .tyden-2 {
-        font-size: 0.8em;
+        font-size: 0.75em;
       }
 
       .holky, .kluci, .spolecne {
@@ -144,3 +144,68 @@
           nazev: 'Letní slavnost',
           den: 'všechny mše',
           skupina: 'spolecne'
+        }
+      ];
+
+      const dayOfWeek = dnes.getDay();
+      const deltaToWednesday = (3 - dayOfWeek + 7) % 7;
+      const prvniStreda = new Date(dnes);
+      prvniStreda.setDate(dnes.getDate() + deltaToWednesday);
+
+      let html = '';
+
+      for (let i = 0; i < 3; i++) {
+        const streda = new Date(prvniStreda);
+        streda.setDate(prvniStreda.getDate() + i * 7);
+
+        const rozdil = streda - zacatek;
+        const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
+        const skupinaStreda = (tydny % 2 === 0) ? "kluci" : "holky";
+        const skupinaNedele = (skupinaStreda === "holky") ? "kluci" : "holky";
+
+        const nedele = new Date(streda);
+        nedele.setDate(streda.getDate() + 4);
+
+        const datumStreda = streda.toLocaleDateString('cs-CZ', options);
+        const datumNedele = nedele.toLocaleDateString('cs-CZ', options);
+
+        html += `<p class="tyden-${i}">Středa ${datumStreda} – <span class="${skupinaStreda}">${skupinaStreda}</span></p>`;
+        html += `<p class="tyden-${i}">Neděle (9:45) ${datumNedele} – <span class="${skupinaNedele}">${skupinaNedele}</span></p>`;
+      }
+
+      skupinaElement.innerHTML = html;
+
+      // Výjimky s animovanými li prvky
+      if (vyjimky.length > 0) {
+        let vyjimkyHtml = '';
+        vyjimky.forEach((v, i) => {
+          const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
+          let trida = v.skupina === 'spolecne' ? 'spolecne' : v.skupina;
+          let popis = v.skupina === 'spolecne' ? 'společně' : v.skupina;
+          vyjimkyHtml += `<li style="animation-delay:${(i + 5) * 0.2}s" class="${trida} fade">${v.nazev} – <em>${v.den} ${datum} (slouží <span class="${trida}">${popis}</span>)</em></li>`;
+        });
+        vyjimkyElement.innerHTML = vyjimkyHtml;
+      }
+
+      // Animace všech relevantních prvků
+      const vsechnyRadky = [...document.querySelectorAll(
+        '#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul li'
+      )];
+      vsechnyRadky.forEach((el, index) => {
+        el.style.opacity = 0;
+        el.style.transform = 'translateY(10px)';
+        el.style.animation = `fadeInUp 0.4s ease forwards`;
+        el.style.animationDelay = `${index * 0.2}s`;
+      });
+
+      // Nahrazení "společně" v paragrafech
+      document.querySelectorAll('p').forEach(p => {
+        p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
+      });
+    }
+
+    zjistiSlužby();
+  </script>
+</body>
+</html>
+
