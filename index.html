@@ -65,36 +65,44 @@
     <div id="skupina"></div>
   </div>
 
-  <script>
-    function zjistiSlužby() {
-      const dnes = new Date();
-      const skupinaElement = document.getElementById('skupina');
-      const zacatek = new Date('2025-01-01');
-      const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+<script>
+  function zjistiSlužby() {
+    const dnes = new Date();
+    const skupinaElement = document.getElementById('skupina');
+    const zacatek = new Date('2025-01-01');
+    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
 
-      const dayOfWeek = dnes.getDay();
-      const deltaToWednesday = (3 - dayOfWeek + 7) % 7;
-      const prvniStreda = new Date(dnes);
-      prvniStreda.setDate(dnes.getDate() + deltaToWednesday);
+    const dayOfWeek = dnes.getDay();
+    const deltaToWednesday = (3 - dayOfWeek + 7) % 7;
+    const prvniStreda = new Date(dnes);
+    prvniStreda.setDate(dnes.getDate() + deltaToWednesday);
 
-      let html = '';
+    let html = '';
 
-      for (let i = 0; i < 3; i++) {
-        const datum = new Date(prvniStreda);
-        datum.setDate(prvniStreda.getDate() + i * 7);
+    for (let i = 0; i < 3; i++) {
+      const streda = new Date(prvniStreda);
+      streda.setDate(prvniStreda.getDate() + i * 7);
 
-        const rozdil = datum - zacatek;
-        const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
-        const skupina = (tydny % 2 === 0) ? "holky" : "kluci";
-        const datumText = datum.toLocaleDateString('cs-CZ', options);
+      const rozdil = streda - zacatek;
+      const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
+      const skupinaStreda = (tydny % 2 === 0) ? "holky" : "kluci";
+      const skupinaNedele = (skupinaStreda === "holky") ? "kluci" : "holky";
 
-        html += `<p class="tyden-${i}">Středa ${datumText} – <span class="${skupina}">${skupina}</span></p>`;
-      }
+      const nedele = new Date(streda);
+      nedele.setDate(streda.getDate() + 4); // středa + 4 dny = neděle
 
-      skupinaElement.innerHTML = html;
+      const datumStreda = streda.toLocaleDateString('cs-CZ', options);
+      const datumNedele = nedele.toLocaleDateString('cs-CZ', options);
+
+      html += `<p class="tyden-${i}">Středa ${datumStreda} – <span class="${skupinaStreda}">${skupinaStreda}</span></p>`;
+      html += `<p class="tyden-${i}">Neděle ${datumNedele} – <span class="${skupinaNedele}">${skupinaNedele}</span></p>`;
     }
 
-    zjistiSlužby();
-  </script>
+    skupinaElement.innerHTML = html;
+  }
+
+  zjistiSlužby();
+</script>
+
 </body>
 </html>
