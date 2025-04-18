@@ -40,11 +40,25 @@
     .tyden-1 { font-size: 80%; }
     .tyden-2 { font-size: 70%; }
 
-    #skupina p, #info-box p {
+    #skupina p, #info-box p, #info-box li {
       opacity: 0;
       transform: translateY(10px);
       animation: fadeInUp 0.6s ease forwards;
       margin: 0.4em 0;
+    }
+
+    #info-box h4 {
+      text-align: center;
+      margin-top: 1.2em;
+      margin-bottom: 0.4em;
+    }
+
+    #info-box ul {
+      list-style-type: disc;
+      padding-left: 1.5em;
+      text-align: left;
+      display: inline-block;
+      margin: 0 auto;
     }
 
     @keyframes fadeInUp {
@@ -65,9 +79,14 @@
     <h3>Kdo má službu?</h3>
     <div id="skupina"></div>
     <div id="info-box">
-      <p><strong>Ostatní mše:</strong> Kluci i holky slouží společně, výjimkou jsou větší slavnosti.</p>
-      <div id="vyjimky"></div>
-      <p><strong>Prázdniny:</strong> Všechny mše budou sloužené společně.</p>
+      <h4>Ostatní mše</h4>
+      <p>Kluci i holky slouží společně, až na výjimky.</p>
+
+      <h4>Výjimky</h4>
+      <ul id="vyjimky"></ul>
+
+      <h4>Letní prázdniny</h4>
+      <p>Všechny mše budou sloužené společně.</p>
     </div>
   </div>
 
@@ -116,18 +135,18 @@
 
       skupinaElement.innerHTML = html;
 
-      // Přidání výjimek
+      // Výjimky jako seznam
       if (vyjimky.length > 0) {
-        let vyjimkyHtml = '<p><strong>Nejbližší výjimka:</strong></p>';
+        let vyjimkyHtml = '';
         vyjimky.forEach(v => {
           const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
-          vyjimkyHtml += `<p>${v.nazev} – <em>${v.den} ${datum} (slouží <span class="${v.skupina}">${v.skupina}</span>)</em></p>`;
+          vyjimkyHtml += `<li>${v.nazev} (${v.den} ${datum}) – slouží <span class="${v.skupina}">${v.skupina}</span></li>`;
         });
         vyjimkyElement.innerHTML = vyjimkyHtml;
       }
 
       // Dynamická animace
-      const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p')];
+      const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget li')];
       vsechnyRadky.forEach((el, index) => {
         el.style.opacity = 0;
         el.style.transform = 'translateY(10px)';
