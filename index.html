@@ -190,7 +190,7 @@
           const nazevSkupiny = v.skupina === "společně"
             ? `<span class="spolecne">společně</span>`
             : `<span class="${v.skupina}">${v.skupina}</span>`;
-          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} (slouží ${nazevSkupiny})</em></li>`;
+          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} – slouží ${nazevSkupiny}</em></li>`;
         });
         vyjimkyElement.innerHTML = vyjimkyHtml;
       }
