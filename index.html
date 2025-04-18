@@ -9,7 +9,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      height: 100vh;
       margin: 0;
       font-family: 'Times New Roman', Times, serif;
       background-color: #ffffff;
@@ -28,7 +28,7 @@
     }
 
     h3 {
-      font-size: 1.8rem;
+      font-size: 2.2rem;
     }
 
     .holky {
@@ -46,11 +46,11 @@
       font-weight: bold;
     }
 
-    .tyden-0 { font-size: 100%; }
-    .tyden-1 { font-size: 80%; }
-    .tyden-2 { font-size: 70%; }
+    .tyden-0 { font-size: 90%; }
+    .tyden-1 { font-size: 75%; }
+    .tyden-2 { font-size: 65%; }
 
-    #skupina p, #info-box p, #vyjimky ul, #info-box h4, #ministranti-widget h3 {
+    #skupina p, #info-box p, #vyjimky ul, #info-box h4, h3 {
       opacity: 0;
       transform: translateY(10px);
       animation: fadeInUp 0.4s ease forwards;
@@ -79,26 +79,25 @@
       }
     }
 
-    /* Mobilní úpravy */
     @media (max-width: 600px) {
       #ministranti-widget {
         padding: 1.5rem;
       }
 
       h3 {
-        font-size: 1.4rem;
+        font-size: 1.8rem;
+      }
+
+      .tyden-0, .tyden-1, .tyden-2 {
+        font-size: 0.8em;
       }
 
       .holky, .kluci, .spolecne {
         font-size: 1.1em;
       }
 
-      .tyden-0, .tyden-1, .tyden-2 {
-        font-size: 0.9em;
-      }
-
       #info-box p {
-        font-size: 0.85em;
+        font-size: 0.9em;
       }
 
       #skupina p, #info-box p {
@@ -106,7 +105,7 @@
       }
 
       #vyjimky ul {
-        font-size: 0.85em;
+        font-size: 0.9em;
       }
     }
   </style>
@@ -145,59 +144,3 @@
           nazev: 'Letní slavnost',
           den: 'všechny mše',
           skupina: 'spolecne'
-        }
-      ];
-
-      const dayOfWeek = dnes.getDay();
-      const deltaToWednesday = (3 - dayOfWeek + 7) % 7;
-      const prvniStreda = new Date(dnes);
-      prvniStreda.setDate(dnes.getDate() + deltaToWednesday);
-
-      let html = '';
-
-      for (let i = 0; i < 3; i++) {
-        const streda = new Date(prvniStreda);
-        streda.setDate(prvniStreda.getDate() + i * 7);
-
-        const rozdil = streda - zacatek;
-        const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
-        const skupinaStreda = (tydny % 2 === 0) ? "kluci" : "holky";
-        const skupinaNedele = (skupinaStreda === "holky") ? "kluci" : "holky";
-
-        const nedele = new Date(streda);
-        nedele.setDate(streda.getDate() + 4);
-
-        const datumStreda = streda.toLocaleDateString('cs-CZ', options);
-        const datumNedele = nedele.toLocaleDateString('cs-CZ', options);
-
-        html += `<p class="tyden-${i}">Středa ${datumStreda} – <span class="${skupinaStreda}">${skupinaStreda}</span></p>`;
-        html += `<p class="tyden-${i}">Neděle (9:45) ${datumNedele} – <span class="${skupinaNedele}">${skupinaNedele}</span></p>`;
-      }
-
-      skupinaElement.innerHTML = html;
-
-      // Výjimky s kontrolou "společně"
-      if (vyjimky.length > 0) {
-        let vyjimkyHtml = '';
-        vyjimky.forEach(v => {
-          const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
-          let spanClass = v.skupina === 'spolecne' ? 'spolecne' : v.skupina;
-          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} (slouží <span class="${spanClass}">${v.skupina}</span>)</em></li>`;
-        });
-        vyjimkyElement.innerHTML = vyjimkyHtml;
-      }
-
-      // Dynamická animace
-      const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul, #vyjimky li')];
-      vsechnyRadky.forEach((el, index) => {
-        el.style.opacity = 0;
-        el.style.transform = 'translateY(10px)';
-        el.style.animation = `fadeInUp 0.4s ease forwards`;
-        el.style.animationDelay = `${index * 0.2}s`;
-      });
-    }
-
-    zjistiSlužby();
-  </script>
-</body>
-</html>
