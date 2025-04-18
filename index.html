@@ -46,9 +46,9 @@
       font-weight: bold;
     }
 
-    .tyden-0 { font-size: 90%; }
-    .tyden-1 { font-size: 75%; }
-    .tyden-2 { font-size: 65%; }
+    .tyden-0 { font-size: 85%; }
+    .tyden-1 { font-size: 70%; }
+    .tyden-2 { font-size: 60%; }
 
     #skupina p, #info-box p, #info-box h4, h3, #vyjimky ul li {
       opacity: 0;
@@ -89,7 +89,7 @@
       }
 
       .tyden-0, .tyden-1, .tyden-2 {
-        font-size: 0.75em;
+        font-size: 0.65em;
       }
 
       .holky, .kluci, .spolecne {
@@ -175,19 +175,18 @@
 
       skupinaElement.innerHTML = html;
 
-      // Výjimky s animovanými li prvky
+      // Výjimky – správné zvýraznění jen slova
       if (vyjimky.length > 0) {
         let vyjimkyHtml = '';
         vyjimky.forEach((v, i) => {
           const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
-          let trida = v.skupina === 'spolecne' ? 'spolecne' : v.skupina;
-          let popis = v.skupina === 'spolecne' ? 'společně' : v.skupina;
-          vyjimkyHtml += `<li style="animation-delay:${(i + 5) * 0.2}s" class="${trida} fade">${v.nazev} – <em>${v.den} ${datum} (slouží <span class="${trida}">${popis}</span>)</em></li>`;
+          const popis = v.skupina === 'spolecne' ? '<span class="spolecne">společně</span>' : `<span class="${v.skupina}">${v.skupina}</span>`;
+          vyjimkyHtml += `<li style="animation-delay:${(i + 5) * 0.2}s" class="fade">${v.nazev} – <em>${v.den} ${datum} (slouží ${popis})</em></li>`;
         });
         vyjimkyElement.innerHTML = vyjimkyHtml;
       }
 
-      // Animace všech relevantních prvků
+      // Animace všech prvků
       const vsechnyRadky = [...document.querySelectorAll(
         '#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul li'
       )];
@@ -198,7 +197,7 @@
         el.style.animationDelay = `${index * 0.2}s`;
       });
 
-      // Nahrazení "společně" v paragrafech
+      // Náhrada všech výskytů slova "společně" v <p>
       document.querySelectorAll('p').forEach(p => {
         p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
       });
@@ -208,4 +207,3 @@
   </script>
 </body>
 </html>
-
