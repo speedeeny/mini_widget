@@ -114,8 +114,6 @@
       <h4>Ostatní mše:</h4>
       <p>Kluci i holky slouží <span class="spolecne">společně</span>, až na výjimky.</p>
       <div id="vyjimky"></div>
-      <h4>Letní prázdniny:</h4>
-      <p>Všechny mše budou sloužené <span class="spolecne">společně</span>.</p>
     </div>
   </div>
 
@@ -136,7 +134,7 @@
         },
         {
           datum: '2025-06-01',
-          nazev: 'Letní prázdniny',
+          nazev: 'Letní slavnost',
           den: 'všechny mše',
           skupina: 'společně'
         }
@@ -175,7 +173,7 @@
         let vyjimkyHtml = '<ul>';
         vyjimky.forEach(v => {
           const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
-          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} (slouží <span class="${v.skupina}">${v.skupina}</span>)</em></li>`;
+          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} (slouží <span class="spolecne">${v.skupina}</span>)</em></li>`;
         });
         vyjimkyHtml += '</ul>';
         vyjimkyElement.innerHTML = vyjimkyHtml;
