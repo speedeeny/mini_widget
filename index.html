@@ -9,7 +9,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
       font-family: 'Times New Roman', Times, serif;
       background-color: #ffffff;
@@ -27,6 +27,10 @@
       width: 100%;
     }
 
+    h3 {
+      font-size: 1.8rem;
+    }
+
     .holky {
       color: #DA70D6;
       font-weight: bold;
@@ -38,7 +42,7 @@
     }
 
     .spolecne {
-      color: #FFA500; /* Žlutooranžová barva */
+      color: #FFA500;
       font-weight: bold;
     }
 
@@ -46,10 +50,10 @@
     .tyden-1 { font-size: 80%; }
     .tyden-2 { font-size: 70%; }
 
-    #skupina p, #info-box p, #vyjimky ul, #info-box h4 {
+    #skupina p, #info-box p, #vyjimky ul, #info-box h4, #ministranti-widget h3 {
       opacity: 0;
       transform: translateY(10px);
-      animation: fadeInUp 0.4s ease forwards; /* Zrychlena animace */
+      animation: fadeInUp 0.4s ease forwards;
       margin: 0.4em 0;
     }
 
@@ -66,9 +70,6 @@
 
     #info-box h4 {
       margin: 1em 0;
-      opacity: 0;
-      transform: translateY(10px);
-      animation: fadeInUp 0.4s ease forwards;
     }
 
     @keyframes fadeInUp {
@@ -78,10 +79,14 @@
       }
     }
 
-    /* Media queries pro mobilní zobrazení */
+    /* Mobilní úpravy */
     @media (max-width: 600px) {
       #ministranti-widget {
         padding: 1.5rem;
+      }
+
+      h3 {
+        font-size: 1.4rem;
       }
 
       .holky, .kluci, .spolecne {
@@ -89,11 +94,11 @@
       }
 
       .tyden-0, .tyden-1, .tyden-2 {
-        font-size: 1em;
+        font-size: 0.9em;
       }
 
       #info-box p {
-        font-size: 0.9em;
+        font-size: 0.85em;
       }
 
       #skupina p, #info-box p {
@@ -101,7 +106,7 @@
       }
 
       #vyjimky ul {
-        font-size: 0.9em;
+        font-size: 0.85em;
       }
     }
   </style>
@@ -139,7 +144,7 @@
           datum: '2025-06-01',
           nazev: 'Letní slavnost',
           den: 'všechny mše',
-          skupina: 'společně'
+          skupina: 'spolecne'
         }
       ];
 
@@ -171,28 +176,24 @@
 
       skupinaElement.innerHTML = html;
 
-      // Přidání výjimek
+      // Výjimky s kontrolou "společně"
       if (vyjimky.length > 0) {
         let vyjimkyHtml = '';
         vyjimky.forEach(v => {
           const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
-          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} (slouží <span class="${v.skupina}">${v.skupina}</span>)</em></li>`;
+          let spanClass = v.skupina === 'spolecne' ? 'spolecne' : v.skupina;
+          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} (slouží <span class="${spanClass}">${v.skupina}</span>)</em></li>`;
         });
         vyjimkyElement.innerHTML = vyjimkyHtml;
       }
 
       // Dynamická animace
-      const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul')];
+      const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul, #vyjimky li')];
       vsechnyRadky.forEach((el, index) => {
         el.style.opacity = 0;
         el.style.transform = 'translateY(10px)';
         el.style.animation = `fadeInUp 0.4s ease forwards`;
-        el.style.animationDelay = `${index * 0.2}s`; /* Zrychlení animace */
-      });
-
-      // Zabarvení slova "společně"
-      document.querySelectorAll('p').forEach(p => {
-        p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
+        el.style.animationDelay = `${index * 0.2}s`;
       });
     }
 
