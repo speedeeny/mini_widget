@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ministranti Widget</title>
   <style>
     body {
@@ -28,7 +28,8 @@
     }
 
     h3 {
-      font-size: 2.4rem;
+      font-size: 2em;
+      margin-bottom: 1rem;
     }
 
     .holky {
@@ -50,7 +51,7 @@
     .tyden-1 { font-size: 70%; }
     .tyden-2 { font-size: 60%; }
 
-    #skupina p, #info-box p, #info-box h4, h3, #vyjimky ul li {
+    #skupina p, #info-box p, #vyjimky ul, #info-box h4 {
       opacity: 0;
       transform: translateY(10px);
       animation: fadeInUp 0.4s ease forwards;
@@ -70,6 +71,9 @@
 
     #info-box h4 {
       margin: 1em 0;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeInUp 0.4s ease forwards;
     }
 
     @keyframes fadeInUp {
@@ -79,17 +83,18 @@
       }
     }
 
+    /* Media queries pro mobilní zobrazení */
     @media (max-width: 600px) {
+      h3 {
+        font-size: 1.6em;
+      }
+
+      .tyden-0 { font-size: 70%; }
+      .tyden-1 { font-size: 55%; }
+      .tyden-2 { font-size: 45%; }
+
       #ministranti-widget {
         padding: 1.5rem;
-      }
-
-      h3 {
-        font-size: 1.8rem;
-      }
-
-      .tyden-0, .tyden-1, .tyden-2 {
-        font-size: 0.45em;
       }
 
       .holky, .kluci, .spolecne {
@@ -141,9 +146,9 @@
         },
         {
           datum: '2025-06-01',
-          nazev: 'Letní prázdniny',
-          den: 'všechny mše od',
-          skupina: 'spolecne'
+          nazev: 'Letní slavnost',
+          den: 'všechny mše',
+          skupina: 'společně'
         }
       ];
 
@@ -175,21 +180,21 @@
 
       skupinaElement.innerHTML = html;
 
-      // Výjimky – správné zvýraznění jen slova
+      // Přidání výjimek
       if (vyjimky.length > 0) {
         let vyjimkyHtml = '';
-        vyjimky.forEach((v, i) => {
+        vyjimky.forEach(v => {
           const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
-          const popis = v.skupina === 'spolecne' ? '<span class="spolecne">společně</span>' : `<span class="${v.skupina}">${v.skupina}</span>`;
-          vyjimkyHtml += `<li style="animation-delay:${(i + 5) * 0.2}s" class="fade">${v.nazev} – <em>${v.den} ${datum} (slouží ${popis})</em></li>`;
+          const nazevSkupiny = v.skupina === "společně"
+            ? `<span class="spolecne">společně</span>`
+            : `<span class="${v.skupina}">${v.skupina}</span>`;
+          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} (slouží ${nazevSkupiny})</em></li>`;
         });
         vyjimkyElement.innerHTML = vyjimkyHtml;
       }
 
-      // Animace všech prvků
-      const vsechnyRadky = [...document.querySelectorAll(
-        '#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul li'
-      )];
+      // Dynamická animace
+      const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul')];
       vsechnyRadky.forEach((el, index) => {
         el.style.opacity = 0;
         el.style.transform = 'translateY(10px)';
@@ -197,7 +202,7 @@
         el.style.animationDelay = `${index * 0.2}s`;
       });
 
-      // Náhrada všech výskytů slova "společně" v <p>
+      // Zabarvení všech výskytů slova "společně"
       document.querySelectorAll('p').forEach(p => {
         p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
       });
