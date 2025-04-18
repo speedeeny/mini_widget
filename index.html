@@ -85,7 +85,7 @@
 
       const rozdil = streda - zacatek;
       const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
-      const skupinaStreda = (tydny % 2 === 0) ? "kluci" : "holky";
+      const skupinaStreda = (tydny % 2 === 0) ? "holky" : "kluci";
       const skupinaNedele = (skupinaStreda === "holky") ? "kluci" : "holky";
 
       const nedele = new Date(streda);
@@ -95,7 +95,7 @@
       const datumNedele = nedele.toLocaleDateString('cs-CZ', options);
 
       html += `<p class="tyden-${i}">Středa ${datumStreda} – <span class="${skupinaStreda}">${skupinaStreda}</span></p>`;
-      html += `<p class="tyden-${i}">Neděle ${datumNedele} – <span class="${skupinaNedele}">${skupinaNedele}</span></p>`;
+      html += `<p class="tyden-${i}">Neděle (9:45) ${datumNedele} – <span class="${skupinaNedele}">${skupinaNedele}</span></p>`;
     }
 
     skupinaElement.innerHTML = html;
@@ -103,6 +103,7 @@
 
   zjistiSlužby();
 </script>
+
 
 </body>
 </html>
