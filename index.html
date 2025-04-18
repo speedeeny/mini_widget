@@ -113,7 +113,10 @@
     <div id="info-box">
       <h4>Ostatní mše:</h4>
       <p>Kluci i holky slouží <span class="spolecne">společně</span>, až na výjimky.</p>
-      <div id="vyjimky"></div>
+      <div id="vyjimky">
+        <h4>Výjimky:</h4>
+        <ul></ul>
+      </div>
     </div>
   </div>
 
@@ -121,7 +124,7 @@
     function zjistiSlužby() {
       const dnes = new Date();
       const skupinaElement = document.getElementById('skupina');
-      const vyjimkyElement = document.getElementById('vyjimky');
+      const vyjimkyElement = document.querySelector('#vyjimky ul');
       const zacatek = new Date('2025-01-01');
       const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
 
@@ -170,12 +173,11 @@
 
       // Přidání výjimek
       if (vyjimky.length > 0) {
-        let vyjimkyHtml = '<ul>';
+        let vyjimkyHtml = '';
         vyjimky.forEach(v => {
           const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
-          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} (slouží <span class="spolecne">${v.skupina}</span>)</em></li>`;
+          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} (slouží <span class="${v.skupina}">${v.skupina}</span>)</em></li>`;
         });
-        vyjimkyHtml += '</ul>';
         vyjimkyElement.innerHTML = vyjimkyHtml;
       }
 
