@@ -40,7 +40,7 @@
     .tyden-1 { font-size: 80%; }
     .tyden-2 { font-size: 70%; }
 
-    #skupina p {
+    #skupina p, #info-box p {
       opacity: 0;
       transform: translateY(10px);
       animation: fadeInUp 0.6s ease forwards;
@@ -53,61 +53,90 @@
         transform: translateY(0);
       }
     }
+
+    #info-box {
+      margin-top: 2rem;
+      font-size: 60%;
+    }
   </style>
 </head>
 <body>
   <div id="ministranti-widget">
     <h3>Kdo má službu?</h3>
     <div id="skupina"></div>
+    <div id="info-box">
+      <p><strong>Ostatní mše:</strong> Kluci i holky slouží společně, výjimkou jsou větší slavnosti.</p>
+      <div id="vyjimky"></div>
+      <p><strong>Prázdniny:</strong> Všechny mše budou sloužené společně.</p>
+    </div>
   </div>
 
-<script>
-  function zjistiSlužby() {
-    const dnes = new Date();
-    const skupinaElement = document.getElementById('skupina');
-    const zacatek = new Date('2025-01-01');
-    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+  <script>
+    function zjistiSlužby() {
+      const dnes = new Date();
+      const skupinaElement = document.getElementById('skupina');
+      const vyjimkyElement = document.getElementById('vyjimky');
+      const zacatek = new Date('2025-01-01');
+      const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
 
-    const dayOfWeek = dnes.getDay();
-    const deltaToWednesday = (3 - dayOfWeek + 7) % 7;
-    const prvniStreda = new Date(dnes);
-    prvniStreda.setDate(dnes.getDate() + deltaToWednesday);
+      const vyjimky = [
+        {
+          datum: '2025-06-19',
+          nazev: 'Slavnost Těla a Krve Páně',
+          den: 'čtvrtek',
+          skupina: 'kluci'
+        }
+      ];
 
-    let html = '';
+      const dayOfWeek = dnes.getDay();
+      const deltaToWednesday = (3 - dayOfWeek + 7) % 7;
+      const prvniStreda = new Date(dnes);
+      prvniStreda.setDate(dnes.getDate() + deltaToWednesday);
 
-    for (let i = 0; i < 3; i++) {
-      const streda = new Date(prvniStreda);
-      streda.setDate(prvniStreda.getDate() + i * 7);
+      let html = '';
 
-      const rozdil = streda - zacatek;
-      const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
-      const skupinaStreda = (tydny % 2 === 0) ? "kluci" : "holky";
-      const skupinaNedele = (skupinaStreda === "holky") ? "kluci" : "holky";
+      for (let i = 0; i < 3; i++) {
+        const streda = new Date(prvniStreda);
+        streda.setDate(prvniStreda.getDate() + i * 7);
 
-      const nedele = new Date(streda);
-      nedele.setDate(streda.getDate() + 4); // středa + 4 dny = neděle
+        const rozdil = streda - zacatek;
+        const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
+        const skupinaStreda = (tydny % 2 === 0) ? "kluci" : "holky";
+        const skupinaNedele = (skupinaStreda === "holky") ? "kluci" : "holky";
 
-      const datumStreda = streda.toLocaleDateString('cs-CZ', options);
-      const datumNedele = nedele.toLocaleDateString('cs-CZ', options);
+        const nedele = new Date(streda);
+        nedele.setDate(streda.getDate() + 4);
 
-      html += `<p class="tyden-${i}">Středa ${datumStreda} – <span class="${skupinaStreda}">${skupinaStreda}</span></p>`;
-      html += `<p class="tyden-${i}">Neděle (9:45) ${datumNedele} – <span class="${skupinaNedele}">${skupinaNedele}</span></p>`;
+        const datumStreda = streda.toLocaleDateString('cs-CZ', options);
+        const datumNedele = nedele.toLocaleDateString('cs-CZ', options);
+
+        html += `<p class="tyden-${i}">Středa ${datumStreda} – <span class="${skupinaStreda}">${skupinaStreda}</span></p>`;
+        html += `<p class="tyden-${i}">Neděle (9:45) ${datumNedele} – <span class="${skupinaNedele}">${skupinaNedele}</span></p>`;
+      }
+
+      skupinaElement.innerHTML = html;
+
+      // Přidání výjimek
+      if (vyjimky.length > 0) {
+        let vyjimkyHtml = '<p><strong>Nejbližší výjimka:</strong></p>';
+        vyjimky.forEach(v => {
+          const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
+          vyjimkyHtml += `<p>${v.nazev} – <em>${v.den} ${datum} (slouží <span class="${v.skupina}">${v.skupina}</span>)</em></p>`;
+        });
+        vyjimkyElement.innerHTML = vyjimkyHtml;
+      }
+
+      // Dynamická animace
+      const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p')];
+      vsechnyRadky.forEach((el, index) => {
+        el.style.opacity = 0;
+        el.style.transform = 'translateY(10px)';
+        el.style.animation = `fadeInUp 0.6s ease forwards`;
+        el.style.animationDelay = `${index * 0.3}s`;
+      });
     }
 
-skupinaElement.innerHTML = html;
-
-// Dynamicky přidáme animace všem řádkům
-[...skupinaElement.querySelectorAll('p')].forEach((el, index) => {
-  el.style.opacity = 0;
-  el.style.transform = 'translateY(10px)';
-  el.style.animation = `fadeInUp 0.6s ease forwards`;
-  el.style.animationDelay = `${index * 0.3}s`;
-});
-  }
-
-  zjistiSlužby();
-</script>
-
-
+    zjistiSlužby();
+  </script>
 </body>
 </html>
