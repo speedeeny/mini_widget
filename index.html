@@ -49,7 +49,6 @@
 
     .tyden-0 { font-size: 80%; }
     .tyden-1 { font-size: 70%; }
-    .tyden-2 { font-size: 65%; }
 
     #skupina p, #info-box p, #vyjimky ul, #info-box h4 {
       opacity: 0;
@@ -58,12 +57,12 @@
       margin: 0.4em 0;
     }
 
-#vyjimky ul {
-  list-style-type: disc;
-  list-style-position: inside;
-  margin-left: 0.1rem;
-  padding-left: 8rem;
-}
+    #vyjimky ul {
+      list-style-type: disc;
+      list-style-position: inside;
+      margin-left: 0.1rem;
+      padding-left: 8rem;
+    }
 
     #info-box {
       margin-top: 2rem;
@@ -92,7 +91,6 @@
 
       .tyden-0 { font-size: 60%; }
       .tyden-1 { font-size: 50%; }
-      .tyden-2 { font-size: 45%; }
 
       #ministranti-widget {
         padding: 1.5rem;
@@ -132,14 +130,13 @@
     </div>
   </div>
 
-  
   <script>
     function zjistiSlužby() {
       const dnes = new Date();
       const skupinaElement = document.getElementById('skupina');
       const vyjimkyElement = document.querySelector('#vyjimky ul');
       const zacatek = new Date('2025-01-01');
-      const options = {month: 'numeric', day: 'numeric' };
+      const options = { month: 'numeric', day: 'numeric' };
 
       const vyjimky = [
         {
@@ -156,35 +153,34 @@
         }
       ];
 
-      const dayOfWeek = dnes.getDay();
-      const deltaToWednesday = (3 - dayOfWeek + 7) % 7;
-      const prvniStreda = new Date(dnes);
-      prvniStreda.setDate(dnes.getDate() + deltaToWednesday);
+      function najdiPristiDen(datum, cilovyDen) {
+        const dnesniDen = datum.getDay();
+        let rozdil = (cilovyDen - dnesniDen + 7) % 7;
+        if (rozdil === 0 && datum.getHours() >= 12) rozdil = 7; // Pokud jsme ve středu nebo neděli odpoledne, posuň dál
+        const dalsiDen = new Date(datum);
+        dalsiDen.setDate(datum.getDate() + rozdil);
+        return dalsiDen;
+      }
 
+      const pristiStreda = najdiPristiDen(dnes, 3); // středa
+      const pristiNedele = najdiPristiDen(dnes, 0); // neděle
+
+      const dny = [pristiStreda, pristiNedele];
       let html = '';
 
-      for (let i = 0; i < 3; i++) {
-        const streda = new Date(prvniStreda);
-        streda.setDate(prvniStreda.getDate() + i * 7);
-
-        const rozdil = streda - zacatek;
+      dny.forEach((den, i) => {
+        const rozdil = den - zacatek;
         const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
-        const skupinaStreda = (tydny % 2 === 0) ? "kluci" : "holky";
-        const skupinaNedele = (skupinaStreda === "holky") ? "kluci" : "holky";
+        const skupinaStreda = (tydny % 2 === 0) ? 'kluci' : 'holky';
+        const skupina = (den.getDay() === 3) ? skupinaStreda : (skupinaStreda === 'kluci' ? 'holky' : 'kluci');
+        const denText = den.getDay() === 3 ? `Středa ${den.toLocaleDateString('cs-CZ', options)}` : `Neděle (9:45) ${den.toLocaleDateString('cs-CZ', options)}`;
 
-        const nedele = new Date(streda);
-        nedele.setDate(streda.getDate() + 4);
-
-        const datumStreda = streda.toLocaleDateString('cs-CZ', options);
-        const datumNedele = nedele.toLocaleDateString('cs-CZ', options);
-
-        html += `<p class="tyden-${i}">Středa ${datumStreda} – <span class="${skupinaStreda}">${skupinaStreda}</span></p>`;
-        html += `<p class="tyden-${i}">Neděle (9:45) ${datumNedele} – <span class="${skupinaNedele}">${skupinaNedele}</span></p>`;
-      }
+        html += `<p class="tyden-${i}">${denText} – <span class="${skupina}">${skupina}</span></p>`;
+      });
 
       skupinaElement.innerHTML = html;
 
-      // Přidání výjimek
+      // Výjimky
       if (vyjimky.length > 0) {
         let vyjimkyHtml = '';
         vyjimky.forEach(v => {
@@ -197,7 +193,7 @@
         vyjimkyElement.innerHTML = vyjimkyHtml;
       }
 
-      // Dynamická animace
+      // Animace
       const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul')];
       vsechnyRadky.forEach((el, index) => {
         el.style.opacity = 0;
@@ -206,7 +202,7 @@
         el.style.animationDelay = `${index * 0.2}s`;
       });
 
-      // Zabarvení všech výskytů slova "společně"
+      // Zvýraznění "společně"
       document.querySelectorAll('p').forEach(p => {
         p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
       });
