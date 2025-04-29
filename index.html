@@ -49,6 +49,7 @@
 
     .tyden-0 { font-size: 80%; }
     .tyden-1 { font-size: 70%; }
+    .tyden-2 { font-size: 65%; }
 
     #skupina p, #info-box p, #vyjimky ul, #info-box h4 {
       opacity: 0;
@@ -83,7 +84,6 @@
       }
     }
 
-    /* Media queries pro mobilní zobrazení */
     @media (max-width: 600px) {
       h3 {
         font-size: 0.7em;
@@ -91,6 +91,7 @@
 
       .tyden-0 { font-size: 60%; }
       .tyden-1 { font-size: 50%; }
+      .tyden-2 { font-size: 45%; }
 
       #ministranti-widget {
         padding: 1.5rem;
@@ -153,32 +154,29 @@
         }
       ];
 
-      function najdiPristiDen(datum, cilovyDen) {
-        const dnesniDen = datum.getDay();
-        let rozdil = (cilovyDen - dnesniDen + 7) % 7;
-        if (rozdil === 0 && datum.getHours() >= 12) rozdil = 7; // Pokud jsme ve středu nebo neděli odpoledne, posuň dál
-        const dalsiDen = new Date(datum);
-        dalsiDen.setDate(datum.getDate() + rozdil);
-        return dalsiDen;
+      const denVTydnu = dnes.getDay(); // 0 = neděle, 1 = pondělí, ..., 6 = sobota
+      const posunTydnu = (denVTydnu >= 4) ? 1 : 0; // od čtvrtka dál začíná další týden
+
+      const html = [];
+      for (let i = 0; i < 3; i++) {
+        const tydenOffset = i + posunTydnu;
+        const streda = new Date(dnes);
+        streda.setDate(streda.getDate() - streda.getDay() + 3 + tydenOffset * 7);
+        const nedele = new Date(streda);
+        nedele.setDate(streda.getDate() + 4);
+
+        const tydny = Math.floor((streda - zacatek) / (1000 * 60 * 60 * 24 * 7));
+        const skupinaStreda = (tydny % 2 === 0) ? "kluci" : "holky";
+        const skupinaNedele = (skupinaStreda === "kluci") ? "holky" : "kluci";
+
+        const datumStreda = streda.toLocaleDateString('cs-CZ', options);
+        const datumNedele = nedele.toLocaleDateString('cs-CZ', options);
+
+        html.push(`<p class="tyden-${i}">Středa ${datumStreda} – <span class="${skupinaStreda}">${skupinaStreda}</span></p>`);
+        html.push(`<p class="tyden-${i}">Neděle (9:45) ${datumNedele} – <span class="${skupinaNedele}">${skupinaNedele}</span></p>`);
       }
 
-      const pristiStreda = najdiPristiDen(dnes, 3); // středa
-      const pristiNedele = najdiPristiDen(dnes, 0); // neděle
-
-      const dny = [pristiStreda, pristiNedele];
-      let html = '';
-
-      dny.forEach((den, i) => {
-        const rozdil = den - zacatek;
-        const tydny = Math.floor(rozdil / (1000 * 60 * 60 * 24 * 7));
-        const skupinaStreda = (tydny % 2 === 0) ? 'kluci' : 'holky';
-        const skupina = (den.getDay() === 3) ? skupinaStreda : (skupinaStreda === 'kluci' ? 'holky' : 'kluci');
-        const denText = den.getDay() === 3 ? `Středa ${den.toLocaleDateString('cs-CZ', options)}` : `Neděle (9:45) ${den.toLocaleDateString('cs-CZ', options)}`;
-
-        html += `<p class="tyden-${i}">${denText} – <span class="${skupina}">${skupina}</span></p>`;
-      });
-
-      skupinaElement.innerHTML = html;
+      skupinaElement.innerHTML = html.join('');
 
       // Výjimky
       if (vyjimky.length > 0) {
