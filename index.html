@@ -134,6 +134,7 @@
   <script>
   function zjistiSlužby() {
     const dnes = new Date();
+    dnes.setHours(0, 0, 0, 0); // Odstraníme čas pro přesné porovnání
     const skupinaElement = document.getElementById('skupina');
     const vyjimkyElement = document.querySelector('#vyjimky ul');
     const zacatek = new Date('2025-01-01');
@@ -154,27 +155,32 @@
       }
     ];
 
+    // Určujeme první den, který nás čeká: středa nebo neděle
     const dnesDen = dnes.getDay(); // 0 = neděle, 1 = pondělí, ..., 6 = sobota
     const prvniTyp = (dnesDen <= 3) ? 'streda' : 'nedele';
 
     const poradi = [];
-    for (let i = 0; i < 3; i++) {
-      const base = new Date(dnes);
-      base.setDate(base.getDate() - base.getDay() + 3 + i * 7); // středa daného týdne
-      const streda = new Date(base);
-      const nedele = new Date(base);
-      nedele.setDate(base.getDate() + 4);
+    let tydenOffset = 0;
+
+    while (poradi.length < 6) { // chceme 3 týdny => 6 dat (st + ne)
+      const streda = new Date();
+      streda.setDate(streda.getDate() - streda.getDay() + 3 + tydenOffset * 7);
+
+      const nedele = new Date(streda);
+      nedele.setDate(streda.getDate() + 4);
 
       if (prvniTyp === 'streda') {
-        poradi.push({ den: 'Středa', datum: streda });
-        poradi.push({ den: 'Neděle (9:45)', datum: nedele });
+        if (streda >= dnes) poradi.push({ den: 'Středa', datum: streda });
+        if (nedele >= dnes) poradi.push({ den: 'Neděle (9:45)', datum: nedele });
       } else {
-        poradi.push({ den: 'Neděle (9:45)', datum: nedele });
-        poradi.push({ den: 'Středa', datum: streda });
+        if (nedele >= dnes) poradi.push({ den: 'Neděle (9:45)', datum: nedele });
+        if (streda >= dnes) poradi.push({ den: 'Středa', datum: streda });
       }
+
+      tydenOffset++;
     }
 
-    const html = poradi.map((polozka, i) => {
+    const html = poradi.slice(0, 6).map((polozka, i) => {
       const tydny = Math.floor((polozka.datum - zacatek) / (1000 * 60 * 60 * 24 * 7));
       const skupina = (polozka.den.includes('Středa'))
         ? (tydny % 2 === 0 ? 'kluci' : 'holky')
