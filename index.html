@@ -133,95 +133,94 @@
 
   <script>
     function zjistiSlužby() {
-  const dnes = new Date();
-  const skupinaElement = document.getElementById('skupina');
-  const vyjimkyElement = document.querySelector('#vyjimky ul');
-  const zacatek = new Date('2025-01-01');
-  const options = { month: 'numeric', day: 'numeric' };
+      const dnes = new Date();
+      const skupinaElement = document.getElementById('skupina');
+      const vyjimkyElement = document.querySelector('#vyjimky ul');
+      const zacatek = new Date('2025-01-01');
+      const options = { month: 'numeric', day: 'numeric' };
 
-  const vyjimky = [
-    {
-      datum: '2025-06-19',
-      nazev: 'Slavnost Těla a Krve Páně',
-      den: 'čtvrtek',
-      skupina: 'kluci'
-    },
-    {
-      datum: '2025-06-01',
-      nazev: 'Letní prázdniny',
-      den: 'všechny mše od',
-      skupina: 'společně'
+      const vyjimky = [
+        {
+          datum: '2025-06-19',
+          nazev: 'Slavnost Těla a Krve Páně',
+          den: 'čtvrtek',
+          skupina: 'kluci'
+        },
+        {
+          datum: '2025-06-01',
+          nazev: 'Letní prázdniny',
+          den: 'všechny mše od',
+          skupina: 'společně'
+        }
+      ];
+
+      function pridejDny(datum, dny) {
+        const nove = new Date(datum);
+        nove.setDate(nove.getDate() + dny);
+        return nove;
+      }
+
+      function dalsiDen(denVTydnu) {
+        const kopie = new Date(dnes);
+        const dnesDen = dnes.getDay();
+
+        if (dnesDen <= 3) {
+          // pondělí až středa → začínáme touto středou
+          return pridejDny(kopie, (3 - dnesDen));
+        } else {
+          // čtvrtek až neděle → začínáme touto nedělí
+          return pridejDny(kopie, (7 - dnesDen) % 7);
+        }
+      }
+
+      const poradi = [];
+      let datum = dalsiDen();
+      for (let i = 0; i < 6; i++) {
+        poradi.push(new Date(datum));
+        datum.setDate(datum.getDate() + (i % 2 === 0 ? 4 : 3)); // středa-neděle-středa...
+      }
+
+      let html = '';
+      poradi.forEach((datum, i) => {
+        const jeStreda = datum.getDay() === 3;
+        const tydny = Math.floor((datum - zacatek) / (1000 * 60 * 60 * 24 * 7));
+        const skupina = (tydny % 2 === 0) ? "kluci" : "holky";
+        const datumText = datum.toLocaleDateString('cs-CZ', options);
+        const popis = jeStreda ? `Středa ${datumText}` : `Neděle (9:45) ${datumText}`;
+        html += `<p class="tyden-${Math.floor(i / 2)}">${popis} – <span class="${skupina}">${skupina}</span></p>`;
+      });
+
+      skupinaElement.innerHTML = html;
+
+      // Výjimky
+      if (vyjimky.length > 0) {
+        let vyjimkyHtml = '';
+        vyjimky.forEach(v => {
+          const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
+          const nazevSkupiny = v.skupina === "společně"
+            ? `<span class="spolecne">společně</span>`
+            : `<span class="${v.skupina}">${v.skupina}</span>`;
+          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} – slouží ${nazevSkupiny}</em></li>`;
+        });
+        vyjimkyElement.innerHTML = vyjimkyHtml;
+      }
+
+      // Animace
+      const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul')];
+      vsechnyRadky.forEach((el, index) => {
+        el.style.opacity = 0;
+        el.style.transform = 'translateY(10px)';
+        el.style.animation = `fadeInUp 0.4s ease forwards`;
+        el.style.animationDelay = `${index * 0.2}s`;
+      });
+
+      // Zvýraznění "společně"
+      document.querySelectorAll('p').forEach(p => {
+        p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
+      });
     }
-  ];
 
-  // Najdeme nejbližší středu a neděli
-  const dnesDen = dnes.getDay(); // 0 = neděle, 1 = pondělí, ..., 6 = sobota
-  const dnesBezCasu = new Date(dnes.getFullYear(), dnes.getMonth(), dnes.getDate());
-
-  const stredaThisWeek = new Date(dnesBezCasu);
-  stredaThisWeek.setDate(stredaThisWeek.getDate() - dnesDen + 3); // středa
-
-  const nedeleThisWeek = new Date(dnesBezCasu);
-  nedeleThisWeek.setDate(nedeleThisWeek.getDate() - dnesDen + 7); // neděle
-
-  const html = [];
-
-  // Zjistíme, čím začít: středa nebo neděle?
-  let startDate = (dnesBezCasu <= stredaThisWeek) ? stredaThisWeek :
-                  (dnesBezCasu <= nedeleThisWeek) ? nedeleThisWeek :
-                  new Date(nedeleThisWeek.getFullYear(), nedeleThisWeek.getMonth(), nedeleThisWeek.getDate() + 3); // další středa
-
-  for (let i = 0; i < 3; i++) {
-    const current = new Date(startDate);
-    current.setDate(startDate.getDate() + i * 7);
-
-    const streda = new Date(current);
-    const nedele = new Date(current);
-    nedele.setDate(streda.getDate() + 4);
-
-    const tydny = Math.floor((streda - zacatek) / (1000 * 60 * 60 * 24 * 7));
-    const skupinaStreda = (tydny % 2 === 0) ? "kluci" : "holky";
-    const skupinaNedele = (skupinaStreda === "kluci") ? "holky" : "kluci";
-
-    const datumStreda = streda.toLocaleDateString('cs-CZ', options);
-    const datumNedele = nedele.toLocaleDateString('cs-CZ', options);
-
-    html.push(`<p class="tyden-${i}">Středa ${datumStreda} – <span class="${skupinaStreda}">${skupinaStreda}</span></p>`);
-    html.push(`<p class="tyden-${i}">Neděle (9:45) ${datumNedele} – <span class="${skupinaNedele}">${skupinaNedele}</span></p>`);
-  }
-
-  skupinaElement.innerHTML = html.join('');
-
-  // Výjimky
-  if (vyjimky.length > 0) {
-    let vyjimkyHtml = '';
-    vyjimky.forEach(v => {
-      const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
-      const nazevSkupiny = v.skupina === "společně"
-        ? `<span class="spolecne">společně</span>`
-        : `<span class="${v.skupina}">${v.skupina}</span>`;
-      vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} – slouží ${nazevSkupiny}</em></li>`;
-    });
-    vyjimkyElement.innerHTML = vyjimkyHtml;
-  }
-
-  // Animace
-  const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul')];
-  vsechnyRadky.forEach((el, index) => {
-    el.style.opacity = 0;
-    el.style.transform = 'translateY(10px)';
-    el.style.animation = `fadeInUp 0.4s ease forwards`;
-    el.style.animationDelay = `${index * 0.2}s`;
-  });
-
-  // Zvýraznění "společně"
-  document.querySelectorAll('p').forEach(p => {
-    p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
-  });
-}
-
-zjistiSlužby();
-
+    zjistiSlužby();
   </script>
 </body>
 </html>
