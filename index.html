@@ -131,10 +131,10 @@
     </div>
   </div>
 
-  <script>
+<script>
   function zjistiSlužby() {
     const dnes = new Date();
-    dnes.setHours(0, 0, 0, 0); // Odstraníme čas pro přesné porovnání
+    dnes.setHours(0, 0, 0, 0);
     const skupinaElement = document.getElementById('skupina');
     const vyjimkyElement = document.querySelector('#vyjimky ul');
     const zacatek = new Date('2025-01-01');
@@ -155,32 +155,27 @@
       }
     ];
 
-    // Určujeme první den, který nás čeká: středa nebo neděle
-    const dnesDen = dnes.getDay(); // 0 = neděle, 1 = pondělí, ..., 6 = sobota
-    const prvniTyp = (dnesDen <= 3) ? 'streda' : 'nedele';
-
-    const poradi = [];
+    // Vygenerujeme budoucí středy a neděle
+    const data = [];
     let tydenOffset = 0;
-
-    while (poradi.length < 6) { // chceme 3 týdny => 6 dat (st + ne)
+    while (data.length < 6) {
       const streda = new Date();
       streda.setDate(streda.getDate() - streda.getDay() + 3 + tydenOffset * 7);
 
-      const nedele = new Date(streda);
-      nedele.setDate(streda.getDate() + 4);
+      const nedele = new Date();
+      nedele.setDate(nedele.getDate() - nedele.getDay() + 7 + tydenOffset * 7);
 
-      if (prvniTyp === 'streda') {
-        if (streda >= dnes) poradi.push({ den: 'Středa', datum: streda });
-        if (nedele >= dnes) poradi.push({ den: 'Neděle (9:45)', datum: nedele });
-      } else {
-        if (nedele >= dnes) poradi.push({ den: 'Neděle (9:45)', datum: nedele });
-        if (streda >= dnes) poradi.push({ den: 'Středa', datum: streda });
-      }
+      if (streda >= dnes) data.push({ den: 'Středa', datum: streda });
+      if (nedele >= dnes) data.push({ den: 'Neděle (9:45)', datum: nedele });
 
       tydenOffset++;
     }
 
-    const html = poradi.slice(0, 6).map((polozka, i) => {
+    // Seřadíme všechny události vzestupně podle data
+    data.sort((a, b) => a.datum - b.datum);
+
+    // Vygenerujeme HTML
+    const html = data.slice(0, 6).map((polozka, i) => {
       const tydny = Math.floor((polozka.datum - zacatek) / (1000 * 60 * 60 * 24 * 7));
       const skupina = (polozka.den.includes('Středa'))
         ? (tydny % 2 === 0 ? 'kluci' : 'holky')
@@ -220,6 +215,8 @@
   }
 
   zjistiSlužby();
-  </script>
+</script>
+
+  
 </body>
 </html>
