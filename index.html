@@ -132,95 +132,88 @@
   </div>
 
   <script>
-    function zjistiSlužby() {
-      const dnes = new Date();
-      const skupinaElement = document.getElementById('skupina');
-      const vyjimkyElement = document.querySelector('#vyjimky ul');
-      const zacatek = new Date('2025-01-01');
-      const options = { month: 'numeric', day: 'numeric' };
+  function zjistiSlužby() {
+    const dnes = new Date();
+    const skupinaElement = document.getElementById('skupina');
+    const vyjimkyElement = document.querySelector('#vyjimky ul');
+    const zacatek = new Date('2025-01-01');
+    const options = { month: 'numeric', day: 'numeric' };
 
-      const vyjimky = [
-        {
-          datum: '2025-06-19',
-          nazev: 'Slavnost Těla a Krve Páně',
-          den: 'čtvrtek',
-          skupina: 'kluci'
-        },
-        {
-          datum: '2025-06-01',
-          nazev: 'Letní prázdniny',
-          den: 'všechny mše od',
-          skupina: 'společně'
-        }
-      ];
-
-      function pridejDny(datum, dny) {
-        const nove = new Date(datum);
-        nove.setDate(nove.getDate() + dny);
-        return nove;
+    const vyjimky = [
+      {
+        datum: '2025-06-19',
+        nazev: 'Slavnost Těla a Krve Páně',
+        den: 'čtvrtek',
+        skupina: 'kluci'
+      },
+      {
+        datum: '2025-06-01',
+        nazev: 'Letní prázdniny',
+        den: 'všechny mše od',
+        skupina: 'společně'
       }
+    ];
 
-      function dalsiDen(denVTydnu) {
-        const kopie = new Date(dnes);
-        const dnesDen = dnes.getDay();
+    const dnesDen = dnes.getDay(); // 0 = neděle, 1 = pondělí, ..., 6 = sobota
+    const prvniTyp = (dnesDen <= 3) ? 'streda' : 'nedele';
 
-        if (dnesDen <= 3) {
-          // pondělí až středa → začínáme touto středou
-          return pridejDny(kopie, (3 - dnesDen));
-        } else {
-          // čtvrtek až neděle → začínáme touto nedělí
-          return pridejDny(kopie, (7 - dnesDen) % 7);
-        }
+    const poradi = [];
+    for (let i = 0; i < 3; i++) {
+      const base = new Date(dnes);
+      base.setDate(base.getDate() - base.getDay() + 3 + i * 7); // středa daného týdne
+      const streda = new Date(base);
+      const nedele = new Date(base);
+      nedele.setDate(base.getDate() + 4);
+
+      if (prvniTyp === 'streda') {
+        poradi.push({ den: 'Středa', datum: streda });
+        poradi.push({ den: 'Neděle (9:45)', datum: nedele });
+      } else {
+        poradi.push({ den: 'Neděle (9:45)', datum: nedele });
+        poradi.push({ den: 'Středa', datum: streda });
       }
-
-      const poradi = [];
-      let datum = dalsiDen();
-      for (let i = 0; i < 6; i++) {
-        poradi.push(new Date(datum));
-        datum.setDate(datum.getDate() + (i % 2 === 0 ? 4 : 3)); // středa-neděle-středa...
-      }
-
-      let html = '';
-      poradi.forEach((datum, i) => {
-        const jeStreda = datum.getDay() === 3;
-        const tydny = Math.floor((datum - zacatek) / (1000 * 60 * 60 * 24 * 7));
-        const skupina = (tydny % 2 === 0) ? "kluci" : "holky";
-        const datumText = datum.toLocaleDateString('cs-CZ', options);
-        const popis = jeStreda ? `Středa ${datumText}` : `Neděle (9:45) ${datumText}`;
-        html += `<p class="tyden-${Math.floor(i / 2)}">${popis} – <span class="${skupina}">${skupina}</span></p>`;
-      });
-
-      skupinaElement.innerHTML = html;
-
-      // Výjimky
-      if (vyjimky.length > 0) {
-        let vyjimkyHtml = '';
-        vyjimky.forEach(v => {
-          const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
-          const nazevSkupiny = v.skupina === "společně"
-            ? `<span class="spolecne">společně</span>`
-            : `<span class="${v.skupina}">${v.skupina}</span>`;
-          vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} – slouží ${nazevSkupiny}</em></li>`;
-        });
-        vyjimkyElement.innerHTML = vyjimkyHtml;
-      }
-
-      // Animace
-      const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul')];
-      vsechnyRadky.forEach((el, index) => {
-        el.style.opacity = 0;
-        el.style.transform = 'translateY(10px)';
-        el.style.animation = `fadeInUp 0.4s ease forwards`;
-        el.style.animationDelay = `${index * 0.2}s`;
-      });
-
-      // Zvýraznění "společně"
-      document.querySelectorAll('p').forEach(p => {
-        p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
-      });
     }
 
-    zjistiSlužby();
+    const html = poradi.map((polozka, i) => {
+      const tydny = Math.floor((polozka.datum - zacatek) / (1000 * 60 * 60 * 24 * 7));
+      const skupina = (polozka.den.includes('Středa'))
+        ? (tydny % 2 === 0 ? 'kluci' : 'holky')
+        : (tydny % 2 === 0 ? 'holky' : 'kluci');
+      const datumText = polozka.datum.toLocaleDateString('cs-CZ', options);
+      return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${skupina}">${skupina}</span></p>`;
+    });
+
+    skupinaElement.innerHTML = html.join('');
+
+    // Výjimky
+    if (vyjimky.length > 0) {
+      let vyjimkyHtml = '';
+      vyjimky.forEach(v => {
+        const datum = new Date(v.datum).toLocaleDateString('cs-CZ', options);
+        const nazevSkupiny = v.skupina === "společně"
+          ? `<span class="spolecne">společně</span>`
+          : `<span class="${v.skupina}">${v.skupina}</span>`;
+        vyjimkyHtml += `<li>${v.nazev} – <em>${v.den} ${datum} – slouží ${nazevSkupiny}</em></li>`;
+      });
+      vyjimkyElement.innerHTML = vyjimkyHtml;
+    }
+
+    // Animace
+    const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4, #vyjimky ul')];
+    vsechnyRadky.forEach((el, index) => {
+      el.style.opacity = 0;
+      el.style.transform = 'translateY(10px)';
+      el.style.animation = `fadeInUp 0.4s ease forwards`;
+      el.style.animationDelay = `${index * 0.2}s`;
+    });
+
+    // Zvýraznění "společně"
+    document.querySelectorAll('p').forEach(p => {
+      p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
+    });
+  }
+
+  zjistiSlužby();
   </script>
 </body>
 </html>
