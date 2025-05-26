@@ -133,8 +133,21 @@
 
 <script>
   function zjistiSlužby() {
-    const dnes = new Date();
-    dnes.setHours(0, 0, 0, 0);
+    const ted = new Date();
+const dnes = new Date(ted);
+
+// Posuneme "dnes" dozadu, pokud je čtvrtek nebo pondělí a dříve
+const denVTydnu = ted.getDay(); // 0 = neděle, 3 = středa, 4 = čtvrtek, ...
+
+if (denVTydnu === 4 && ted.getHours() < 5) {
+  // Čtvrtek před 5:00 – ještě nechceme posunout
+  dnes.setDate(dnes.getDate() - 1);
+} else if (denVTydnu === 1 && ted.getHours() < 5) {
+  // Pondělí před 5:00 – ještě nechceme posunout
+  dnes.setDate(dnes.getDate() - 1);
+}
+dnes.setHours(0, 0, 0, 0);
+
     const skupinaElement = document.getElementById('skupina');
     const vyjimkyElement = document.querySelector('#vyjimky ul');
     const zacatek = new Date('2025-01-01');
