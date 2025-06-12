@@ -134,19 +134,16 @@
 <script>
   function zjistiSlužby() {
     const ted = new Date();
-const dnes = new Date(ted);
+    const dnes = new Date(ted);
 
-// Posuneme "dnes" dozadu, pokud je čtvrtek nebo pondělí a dříve
-const denVTydnu = ted.getDay(); // 0 = neděle, 3 = středa, 4 = čtvrtek, ...
+    const denVTydnu = ted.getDay(); // 0 = neděle, 1 = pondělí, ...
 
-if (denVTydnu === 4 && ted.getHours() < 5) {
-  // Čtvrtek před 5:00 – ještě nechceme posunout
-  dnes.setDate(dnes.getDate() - 1);
-} else if (denVTydnu === 1 && ted.getHours() < 5) {
-  // Pondělí před 5:00 – ještě nechceme posunout
-  dnes.setDate(dnes.getDate() - 1);
-}
-dnes.setHours(0, 0, 0, 0);
+    // Posuneme "dnes" dozadu, pokud je pondělí nebo čtvrtek před 5:00
+    if ((denVTydnu === 1 || denVTydnu === 4) && ted.getHours() < 5) {
+      dnes.setDate(dnes.getDate() - 1);
+    }
+
+    dnes.setHours(0, 0, 0, 0);
 
     const skupinaElement = document.getElementById('skupina');
     const vyjimkyElement = document.querySelector('#vyjimky ul');
@@ -174,17 +171,27 @@ dnes.setHours(0, 0, 0, 0);
     while (data.length < 6) {
       const streda = new Date();
       streda.setDate(streda.getDate() - streda.getDay() + 3 + tydenOffset * 7);
+      streda.setHours(0, 0, 0, 0);
 
       const nedele = new Date();
       nedele.setDate(nedele.getDate() - nedele.getDay() + 7 + tydenOffset * 7);
+      nedele.setHours(0, 0, 0, 0);
 
       if (streda >= dnes) data.push({ den: 'Středa', datum: streda });
-      if (nedele >= dnes) data.push({ den: 'Neděle (9:45)', datum: nedele });
+
+      // OPRAVA: Pokud je dnes neděle, zobrazíme i dnešní neděli (ne až tu příští)
+      const dnesJeNedele = ted.getDay() === 0;
+      const nedeleDnes = new Date(ted);
+      nedeleDnes.setHours(0, 0, 0, 0);
+
+      if ((nedele >= dnes && !dnesJeNedele) || (dnesJeNedele && nedele.getTime() === nedeleDnes.getTime())) {
+        data.push({ den: 'Neděle (9:45)', datum: nedele });
+      }
 
       tydenOffset++;
     }
 
-    // Seřadíme všechny události vzestupně podle data
+    // Seřadíme události podle data
     data.sort((a, b) => a.datum - b.datum);
 
     // Vygenerujeme HTML
@@ -229,6 +236,7 @@ dnes.setHours(0, 0, 0, 0);
 
   zjistiSlužby();
 </script>
+
 
   
 </body>
