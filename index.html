@@ -135,7 +135,7 @@
   function zjistiSlužby() {
     const ted = new Date();
     const dnes = new Date(ted);
-    const denVTydnu = ted.getDay(); // 0 = neděle
+    const denVTydnu = ted.getDay();
 
     if ((denVTydnu === 1 || denVTydnu === 4) && ted.getHours() < 5) {
       dnes.setDate(dnes.getDate() - 1);
@@ -145,6 +145,7 @@
     const skupinaElement = document.getElementById('skupina');
     const vyjimkyElement = document.querySelector('#vyjimky ul');
     const options = { month: 'numeric', day: 'numeric' };
+    const zacatek = new Date('2025-01-01');
 
     const vyjimky = [
       {
@@ -161,9 +162,13 @@
       }
     ];
 
-    // Vygenerujeme budoucí neděle
+    // Rozsah prázdnin
+    const prazdninyOd = new Date('2025-07-01');
+    const prazdninyDo = new Date('2025-08-31');
+
     const data = [];
     let tydenOffset = 0;
+
     while (data.length < 6) {
       const nedele = new Date();
       nedele.setDate(nedele.getDate() - nedele.getDay() + 7 + tydenOffset * 7);
@@ -174,16 +179,21 @@
       nedeleDnes.setHours(0, 0, 0, 0);
 
       if ((nedele >= dnes && !dnesJeNedele) || (dnesJeNedele && nedele.getTime() === nedeleDnes.getTime())) {
-        // středa po této neděli
         const streda = new Date(nedele);
         streda.setDate(nedele.getDate() + 3);
+        streda.setHours(0, 0, 0, 0);
 
-        const tydny = Math.floor((nedele - new Date('2025-01-01')) / (1000 * 60 * 60 * 24 * 7));
-        const skupina = (tydny % 2 === 0) ? 'holky' : 'kluci';
+        // Určení skupiny
+        let skupina;
+        if ((nedele >= prazdninyOd && nedele <= prazdninyDo) || (streda >= prazdninyOd && streda <= prazdninyDo)) {
+          skupina = 'společně';
+        } else {
+          const tydny = Math.floor((nedele - zacatek) / (1000 * 60 * 60 * 24 * 7));
+          skupina = (tydny % 2 === 0) ? 'holky' : 'kluci';
+        }
 
         data.push({ den: 'Neděle (9:45)', datum: nedele, skupina });
         data.push({ den: 'Středa', datum: streda, skupina });
-
       }
 
       tydenOffset++;
@@ -193,7 +203,8 @@
 
     const html = data.slice(0, 6).map((polozka, i) => {
       const datumText = polozka.datum.toLocaleDateString('cs-CZ', options);
-      return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${polozka.skupina}">${polozka.skupina}</span></p>`;
+      const skupinaClass = polozka.skupina === 'společně' ? 'spolecne' : polozka.skupina;
+      return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${skupinaClass}">${polozka.skupina}</span></p>`;
     });
 
     skupinaElement.innerHTML = html.join('');
@@ -228,8 +239,6 @@
 
   zjistiSlužby();
 </script>
-
-
 
   
 </body>
