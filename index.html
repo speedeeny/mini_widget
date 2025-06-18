@@ -135,19 +135,15 @@
   function zjistiSlužby() {
     const ted = new Date();
     const dnes = new Date(ted);
+    const denVTydnu = ted.getDay(); // 0 = neděle
 
-    const denVTydnu = ted.getDay(); // 0 = neděle, 1 = pondělí, ...
-
-    // Posuneme "dnes" dozadu, pokud je pondělí nebo čtvrtek před 5:00
     if ((denVTydnu === 1 || denVTydnu === 4) && ted.getHours() < 5) {
       dnes.setDate(dnes.getDate() - 1);
     }
-
     dnes.setHours(0, 0, 0, 0);
 
     const skupinaElement = document.getElementById('skupina');
     const vyjimkyElement = document.querySelector('#vyjimky ul');
-    const zacatek = new Date('2025-01-01');
     const options = { month: 'numeric', day: 'numeric' };
 
     const vyjimky = [
@@ -165,43 +161,39 @@
       }
     ];
 
-    // Vygenerujeme budoucí středy a neděle
+    // Vygenerujeme budoucí neděle
     const data = [];
     let tydenOffset = 0;
     while (data.length < 6) {
-      const streda = new Date();
-      streda.setDate(streda.getDate() - streda.getDay() + 3 + tydenOffset * 7);
-      streda.setHours(0, 0, 0, 0);
-
       const nedele = new Date();
       nedele.setDate(nedele.getDate() - nedele.getDay() + 7 + tydenOffset * 7);
       nedele.setHours(0, 0, 0, 0);
 
-      if (streda >= dnes) data.push({ den: 'Středa', datum: streda });
-
-      // OPRAVA: Pokud je dnes neděle, zobrazíme i dnešní neděli (ne až tu příští)
       const dnesJeNedele = ted.getDay() === 0;
       const nedeleDnes = new Date(ted);
       nedeleDnes.setHours(0, 0, 0, 0);
 
       if ((nedele >= dnes && !dnesJeNedele) || (dnesJeNedele && nedele.getTime() === nedeleDnes.getTime())) {
-        data.push({ den: 'Neděle (9:45)', datum: nedele });
+        // středa po této neděli
+        const streda = new Date(nedele);
+        streda.setDate(nedele.getDate() + 3);
+
+        const tydny = Math.floor((nedele - new Date('2025-01-01')) / (1000 * 60 * 60 * 24 * 7));
+        const skupina = (tydny % 2 === 0) ? 'holky' : 'kluci';
+
+        data.push({ den: 'Neděle (9:45)', datum: nedele, skupina });
+        data.push({ den: 'Středa', datum: streda, skupina });
+
       }
 
       tydenOffset++;
     }
 
-    // Seřadíme události podle data
     data.sort((a, b) => a.datum - b.datum);
 
-    // Vygenerujeme HTML
     const html = data.slice(0, 6).map((polozka, i) => {
-      const tydny = Math.floor((polozka.datum - zacatek) / (1000 * 60 * 60 * 24 * 7));
-      const skupina = (polozka.den.includes('Středa'))
-        ? (tydny % 2 === 0 ? 'kluci' : 'holky')
-        : (tydny % 2 === 0 ? 'holky' : 'kluci');
       const datumText = polozka.datum.toLocaleDateString('cs-CZ', options);
-      return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${skupina}">${skupina}</span></p>`;
+      return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${polozka.skupina}">${polozka.skupina}</span></p>`;
     });
 
     skupinaElement.innerHTML = html.join('');
@@ -236,6 +228,7 @@
 
   zjistiSlužby();
 </script>
+
 
 
   
