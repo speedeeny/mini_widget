@@ -129,11 +129,11 @@ function zjistiSlužby() {
   const start = new Date('2025-09-07'); // začínáme 7.9.2025 – kluci
 
   const data = [];
-  let tydenOffset = 0;
+  let blokOffset = 0;
 
   while (data.length < 6) {
     const nedele = new Date(start);
-    nedele.setDate(start.getDate() + tydenOffset * 7);
+    nedele.setDate(start.getDate() + blokOffset * 7);
     nedele.setHours(0, 0, 0, 0);
 
     const streda = new Date(nedele);
@@ -143,31 +143,29 @@ function zjistiSlužby() {
     // Zobrazit aktuální neděli až do pondělí 5:00
     const zobrazitNedelni = (
       nedele > dnes ||
-      (denVTydnu === 0 && hodina < 24) || // dnes neděle
-      (denVTydnu === 1 && hodina < 5)     // pondělí před 5:00
+      (denVTydnu === 0 && hodina < 24) ||
+      (denVTydnu === 1 && hodina < 5)
     );
 
     // Zobrazit středu až do čtvrtka 5:00
     const zobrazitStredu = (
       streda > dnes ||
-      (denVTydnu === 3 && hodina < 24) || // dnes středa
-      (denVTydnu === 4 && hodina < 5)     // čtvrtek před 5:00
+      (denVTydnu === 3 && hodina < 24) ||
+      (denVTydnu === 4 && hodina < 5)
     );
 
-    // Určíme skupiny
-    const tydnyOdStartu = Math.floor((nedele - start) / (1000 * 60 * 60 * 24 * 7));
-    const skupinaNedele = (tydnyOdStartu % 2 === 0) ? 'kluci' : 'holky';
-    const skupinaStreda = (skupinaNedele === 'kluci') ? 'holky' : 'kluci';
+    // Určíme skupinu bloku
+    const skupinaBloku = (blokOffset % 2 === 0) ? 'kluci' : 'holky';
 
     if (zobrazitNedelni) {
-      data.push({ den: 'Neděle (9:45)', datum: nedele, skupina: skupinaNedele });
+      data.push({ den: 'Neděle (9:45)', datum: nedele, skupina: skupinaBloku });
     }
 
     if (zobrazitStredu) {
-      data.push({ den: 'Středa', datum: streda, skupina: skupinaStreda });
+      data.push({ den: 'Středa', datum: streda, skupina: skupinaBloku });
     }
 
-    tydenOffset++;
+    blokOffset++;
   }
 
   data.sort((a, b) => a.datum - b.datum);
