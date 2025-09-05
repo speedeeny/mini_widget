@@ -125,14 +125,15 @@ function zjistiSlužby() {
 
   const skupinaElement = document.getElementById('skupina');
   const options = { month: 'numeric', day: 'numeric' };
-  const zacatek = new Date('2025-01-01');
+
+  const start = new Date('2025-09-07'); // začínáme 7.9.2025 – kluci
 
   const data = [];
   let tydenOffset = 0;
 
   while (data.length < 6) {
-    const nedele = new Date();
-    nedele.setDate(nedele.getDate() - nedele.getDay() + 7 + tydenOffset * 7);
+    const nedele = new Date(start);
+    nedele.setDate(start.getDate() + tydenOffset * 7);
     nedele.setHours(0, 0, 0, 0);
 
     const streda = new Date(nedele);
@@ -153,16 +154,17 @@ function zjistiSlužby() {
       (denVTydnu === 4 && hodina < 5)     // čtvrtek před 5:00
     );
 
-    // Týden určujeme podle neděle
-    const tydny = Math.floor((nedele - zacatek) / (1000 * 60 * 60 * 24 * 7));
-    const skupina = (tydny % 2 === 0 ? 'holky' : 'kluci');
+    // Určíme skupiny
+    const tydnyOdStartu = Math.floor((nedele - start) / (1000 * 60 * 60 * 24 * 7));
+    const skupinaNedele = (tydnyOdStartu % 2 === 0) ? 'kluci' : 'holky';
+    const skupinaStreda = (skupinaNedele === 'kluci') ? 'holky' : 'kluci';
 
     if (zobrazitNedelni) {
-      data.push({ den: 'Neděle (9:45)', datum: nedele, skupina });
+      data.push({ den: 'Neděle (9:45)', datum: nedele, skupina: skupinaNedele });
     }
 
     if (zobrazitStredu) {
-      data.push({ den: 'Středa', datum: streda, skupina });
+      data.push({ den: 'Středa', datum: streda, skupina: skupinaStreda });
     }
 
     tydenOffset++;
@@ -172,7 +174,7 @@ function zjistiSlužby() {
 
   const html = data.slice(0, 6).map((polozka, i) => {
     const datumText = polozka.datum.toLocaleDateString('cs-CZ', options);
-    const skupinaClass = polozka.skupina === 'společně' ? 'spolecne' : polozka.skupina;
+    const skupinaClass = polozka.skupina;
     return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${skupinaClass}">${polozka.skupina}</span></p>`;
   });
 
