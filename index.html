@@ -120,13 +120,12 @@ function zjistiSlužby() {
   const dnes = new Date(ted);
   const denVTydnu = ted.getDay(); // 0 = neděle
   const hodina = ted.getHours();
-
   dnes.setHours(0, 0, 0, 0);
 
   const skupinaElement = document.getElementById('skupina');
   const options = { month: 'numeric', day: 'numeric' };
 
-  const start = new Date('2025-09-07'); // začínáme 7.9.2025 – kluci
+  const start = new Date('2025-09-07'); // první neděle – kluci
 
   const data = [];
   let blokOffset = 0;
@@ -154,17 +153,21 @@ function zjistiSlužby() {
       (denVTydnu === 4 && hodina < 5)
     );
 
-    // Určíme skupinu bloku
-    const skupinaBloku = (blokOffset % 2 === 0) ? 'kluci' : 'holky';
+    // logika střídání:
+    // sudý blok → neděle kluci, středa holky, další neděle = holky
+    // lichý blok → neděle holky, středa kluci, další neděle = kluci
+    const skupinaNedele = (blokOffset % 2 === 0) ? 'kluci' : 'holky';
+    const skupinaStreda = (skupinaNedele === 'kluci') ? 'holky' : 'kluci';
 
     if (zobrazitNedelni) {
-      data.push({ den: 'Neděle (9:45)', datum: nedele, skupina: skupinaBloku });
+      data.push({ den: 'Neděle (9:45)', datum: nedele, skupina: skupinaNedele });
     }
 
     if (zobrazitStredu) {
-      data.push({ den: 'Středa', datum: streda, skupina: skupinaBloku });
+      data.push({ den: 'Středa', datum: streda, skupina: skupinaStreda });
     }
 
+    // pro příští neděli se převezme středeční skupina
     blokOffset++;
   }
 
