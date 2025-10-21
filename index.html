@@ -151,6 +151,10 @@
       const data = [];
       let blokOffset = 0;
 
+      // Datum přechodu pouze na středy
+      const prechodoveDatum = new Date('2025-11-01');
+      prechodoveDatum.setHours(0, 0, 0, 0);
+
       while (data.length < 6) {
         const nedele = new Date(start);
         nedele.setDate(start.getDate() + blokOffset * 7);
@@ -180,7 +184,8 @@
         const skupinaNedele = (blokOffset % 2 === 0) ? 'kluci' : 'holky';
         const skupinaStreda = (skupinaNedele === 'kluci') ? 'holky' : 'kluci';
 
-        if (zobrazitNedelni) {
+        // Přidat neděli pouze pokud je před 1.11.2025
+        if (zobrazitNedelni && nedele < prechodoveDatum) {
           data.push({
             den: 'Neděle (9:45)',
             datum: nedele,
@@ -188,6 +193,7 @@
           });
         }
 
+        // Středy zobrazujeme vždy
         if (zobrazitStredu) {
           data.push({
             den: 'Středa',
