@@ -123,77 +123,109 @@
         margin: 0.2em 0;
       }
     }
+  </style>
+</head>
+<body>
+  <div id="ministranti-widget">
+    <h3>Kdo má službu?</h3>
+    <div id="skupina"></div>
 
-<script>
+    <div id="info-box">
+      <h4>Ostatní mše:</h4>
+      <p>Kluci i holky slouží <span class="spolecne">společně</span>, až na výjimky.</p>
+    </div>
+  </div>
 
-function zjistiSlužby() {
-  const ted = new Date();
-  const dnes = new Date(ted);
-  const hodina = ted.getHours();
-  dnes.setHours(0, 0, 0, 0);
+  <script>
+    function zjistiSlužby() {
+      const ted = new Date();
+      const dnes = new Date(ted);
+      const denVTydnu = ted.getDay(); // 0 = neděle
+      const hodina = ted.getHours();
+      dnes.setHours(0, 0, 0, 0);
 
-  const skupinaElement = document.getElementById('skupina');
-  const options = { month: 'numeric', day: 'numeric' };
+      const skupinaElement = document.getElementById('skupina');
+      const options = { month: 'numeric', day: 'numeric' };
 
-  const start = new Date('2025-09-07'); // původní start, ale od 1.11. jen středy
-  const prechod = new Date('2025-11-01'); // datum, od kdy zobrazovat jen středy
-  const data = [];
-  let blokOffset = 0;
+      const start = new Date('2025-09-07'); // první neděle – kluci
+      const data = [];
+      let blokOffset = 0;
 
-  // najít první středu po startu nebo po 1.11.
-  let aktualniStreda = new Date(start);
-  aktualniStreda.setDate(start.getDate() + 3); // první středa po startu
-  if (aktualniStreda < prechod) {
-    aktualniStreda = new Date(prechod);
-    const den = aktualniStreda.getDay();
-    // posun na nejbližší středu
-    aktualniStreda.setDate(aktualniStreda.getDate() + ((3 + 7 - den) % 7));
-  }
+      while (data.length < 6) {
+        const nedele = new Date(start);
+        nedele.setDate(start.getDate() + blokOffset * 7);
+        nedele.setHours(0, 0, 0, 0);
 
-  while (data.length < 6) {
-    // středa
-    const skupina = (blokOffset % 2 === 0) ? 'holky' : 'kluci'; // střídání
-    data.push({
-      den: 'Středa',
-      datum: new Date(aktualniStreda),
-      skupina: skupina
-    });
+        const streda = new Date(nedele);
+        streda.setDate(nedele.getDate() + 3);
+        streda.setHours(0, 0, 0, 0);
 
-    // příští středa
-    aktualniStreda.setDate(aktualniStreda.getDate() + 7);
-    blokOffset++;
-  }
+        // Zobrazit aktuální neděli až do pondělí 5:00
+        const zobrazitNedelni = (
+          nedele > dnes ||
+          (denVTydnu === 0 && hodina < 24) ||
+          (denVTydnu === 1 && hodina < 5)
+        );
 
-  const html = data.map((polozka, i) => {
-    const datumText = polozka.datum.toLocaleDateString('cs-CZ', options);
-    const skupinaClass = polozka.skupina;
-    return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${skupinaClass}">${polozka.skupina}</span></p>`;
-  });
+        // Zobrazit středu až do čtvrtka 5:00
+        const zobrazitStredu = (
+          streda > dnes ||
+          (denVTydnu === 3 && hodina < 24) ||
+          (denVTydnu === 4 && hodina < 5)
+        );
 
-  skupinaElement.innerHTML = html.join('');
+        // logika střídání:
+        // sudý blok → neděle kluci, středa holky, další neděle = holky
+        // lichý blok → neděle holky, středa kluci, další neděle = kluci
+        const skupinaNedele = (blokOffset % 2 === 0) ? 'kluci' : 'holky';
+        const skupinaStreda = (skupinaNedele === 'kluci') ? 'holky' : 'kluci';
 
-  // Animace
-  const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4')];
-  vsechnyRadky.forEach((el, index) => {
-    el.style.opacity = 0;
-    el.style.transform = 'translateY(10px)';
-    el.style.animation = `fadeInUp 0.4s ease forwards`;
-    el.style.animationDelay = `${index * 0.2}s`;
-  });
+        if (zobrazitNedelni) {
+          data.push({
+            den: 'Neděle (9:45)',
+            datum: nedele,
+            skupina: skupinaNedele
+          });
+        }
 
-  // Zvýraznění "společně"
-  document.querySelectorAll('p').forEach(p => {
-    p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
-  });
-}
+        if (zobrazitStredu) {
+          data.push({
+            den: 'Středa',
+            datum: streda,
+            skupina: skupinaStreda
+          });
+        }
 
-zjistiSlužby();
+        // pro příští neděli se převezme středeční skupina
+        blokOffset++;
+      }
 
+      data.sort((a, b) => a.datum - b.datum);
 
-</script>
+      const html = data.slice(0, 6).map((polozka, i) => {
+        const datumText = polozka.datum.toLocaleDateString('cs-CZ', options);
+        const skupinaClass = polozka.skupina;
+        return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${skupinaClass}">${polozka.skupina}</span></p>`;
+      });
 
+      skupinaElement.innerHTML = html.join('');
 
+      // Animace
+      const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4')];
+      vsechnyRadky.forEach((el, index) => {
+        el.style.opacity = 0;
+        el.style.transform = 'translateY(10px)';
+        el.style.animation = `fadeInUp 0.4s ease forwards`;
+        el.style.animationDelay = `${index * 0.2}s`;
+      });
 
-    
+      // Zvýraznění "společně"
+      document.querySelectorAll('p').forEach(p => {
+        p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
+      });
+    }
+
+    zjistiSlužby();
+  </script>
 </body>
 </html>
