@@ -126,22 +126,17 @@
 
 <script>
 function zjistiSlužby() {
-  const ted = new Date();
-  const dnes = new Date(ted);
-  const denVTydnu = ted.getDay();
-  const hodina = ted.getHours();
+  const dnes = new Date();
   dnes.setHours(0, 0, 0, 0);
 
-  const skupinaElement = document.getElementById('skupina');
-  const options = { month: 'numeric', day: 'numeric' };
-
+  const listopadPrvni = new Date('2025-11-01');
   const start = new Date('2025-09-07'); // první neděle – kluci
-  const listopadPrvni = new Date('2025-11-01'); // po tomto datu už neukazovat neděle
+  const options = { month: 'numeric', day: 'numeric' };
+  const skupinaElement = document.getElementById('skupina');
   const data = [];
-  let blokOffset = 0;
 
-  // generujeme do budoucna 12 týdnů (stačí na několik středečních cyklů)
-  while (blokOffset < 12) {
+  // vygenerujeme 12 týdnů dopředu
+  for (let blokOffset = 0; blokOffset < 12; blokOffset++) {
     const nedele = new Date(start);
     nedele.setDate(start.getDate() + blokOffset * 7);
     nedele.setHours(0, 0, 0, 0);
@@ -150,18 +145,11 @@ function zjistiSlužby() {
     streda.setDate(nedele.getDate() + 3);
     streda.setHours(0, 0, 0, 0);
 
-    // střídání skupin
     const skupinaNedele = (blokOffset % 2 === 0) ? 'kluci' : 'holky';
     const skupinaStreda = (skupinaNedele === 'kluci') ? 'holky' : 'kluci';
 
-    // --- zobrazit středy (stále) ---
-    const zobrazitStredu = (
-      streda >= dnes ||
-      (denVTydnu === 3 && hodina < 24) ||
-      (denVTydnu === 4 && hodina < 5)
-    );
-
-    if (zobrazitStredu) {
+    // středy – zobrazujeme vždy po dnešku
+    if (streda >= dnes) {
       data.push({
         den: 'Středa',
         datum: streda,
@@ -169,35 +157,24 @@ function zjistiSlužby() {
       });
     }
 
-    // --- zobrazit neděle pouze do 31.10. ---
-    if (nedele < listopadPrvni) {
-      const zobrazitNedelni = (
-        nedele >= dnes ||
-        (denVTydnu === 0 && hodina < 24) ||
-        (denVTydnu === 1 && hodina < 5)
-      );
-
-      if (zobrazitNedelni) {
-        data.push({
-          den: 'Neděle (9:45)',
-          datum: nedele,
-          skupina: skupinaNedele
-        });
-      }
+    // neděle – jen do 31.10.2025
+    if (nedele >= dnes && nedele < listopadPrvni) {
+      data.push({
+        den: 'Neděle (9:45)',
+        datum: nedele,
+        skupina: skupinaNedele
+      });
     }
-
-    blokOffset++;
   }
 
-  // seřadit podle data a vzít prvních 6 záznamů
+  // seřadit a omezit na 6 nejbližších
   data.sort((a, b) => a.datum - b.datum);
   const html = data.slice(0, 6).map((polozka, i) => {
     const datumText = polozka.datum.toLocaleDateString('cs-CZ', options);
-    const skupinaClass = polozka.skupina;
-    return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${skupinaClass}">${polozka.skupina}</span></p>`;
-  });
+    return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${polozka.skupina}">${polozka.skupina}</span></p>`;
+  }).join('');
 
-  skupinaElement.innerHTML = html.join('');
+  skupinaElement.innerHTML = html;
 
   // animace
   const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4')];
@@ -211,6 +188,7 @@ function zjistiSlužby() {
 
 zjistiSlužby();
 </script>
+
 
 
     
