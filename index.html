@@ -1,237 +1,175 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ministranti Widget</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      font-family: 'Times New Roman', Times, serif;
-      background-color: #ffffff;
-      color: #393939;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ministranti Widget</title>
+<style>
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  font-family: 'Times New Roman', Times, serif;
+  background-color: #ffffff;
+  color: #393939;
+}
 
-    #ministranti-widget {
-      background-color: #f8f8f8;
-      padding: 2rem;
-      border-radius: 1rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      font-size: calc(72px * 2 / 3);
-      max-width: 90%;
-      width: 100%;
-    }
+#ministranti-widget {
+  background-color: #f8f8f8;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-size: calc(72px * 2 / 3);
+  max-width: 90%;
+  width: 100%;
+}
 
-    h3 {
-      font-size: 1.1em;
-      margin-bottom: 1rem;
-    }
+h3 {
+  font-size: 1.1em;
+  margin-bottom: 1rem;
+}
 
-    .holky {
-      color: #DA70D6;
-      font-weight: bold;
-    }
+.holky {
+  color: #DA70D6;
+  font-weight: bold;
+}
 
-    .kluci {
-      color: green;
-      font-weight: bold;
-    }
+.kluci {
+  color: green;
+  font-weight: bold;
+}
 
-    .spolecne {
-      color: #FFA500;
-      font-weight: bold;
-    }
+.spolecne {
+  color: #FFA500;
+  font-weight: bold;
+}
 
-    .tyden-0 {
-      font-size: 80%;
-    }
+.tyden-0 { font-size: 80%; }
+.tyden-1 { font-size: 70%; }
+.tyden-2 { font-size: 65%; }
 
-    .tyden-1 {
-      font-size: 70%;
-    }
+#skupina p,
+#info-box p,
+#info-box h4 {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.4s ease forwards;
+  margin: 0.4em 0;
+}
 
-    .tyden-2 {
-      font-size: 65%;
-    }
+#info-box {
+  margin-top: 2rem;
+  font-size: 60%;
+}
 
-    #skupina p,
-    #info-box p,
-    #info-box h4 {
-      opacity: 0;
-      transform: translateY(10px);
-      animation: fadeInUp 0.4s ease forwards;
-      margin: 0.4em 0;
-    }
+#info-box h4 {
+  margin: 1em 0;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.4s ease forwards;
+}
 
-    #info-box {
-      margin-top: 2rem;
-      font-size: 60%;
-    }
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-    #info-box h4 {
-      margin: 1em 0;
-      opacity: 0;
-      transform: translateY(10px);
-      animation: fadeInUp 0.4s ease forwards;
-    }
-
-    @keyframes fadeInUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (max-width: 600px) {
-      h3 {
-        font-size: 0.7em;
-      }
-
-      .tyden-0 {
-        font-size: 60%;
-      }
-
-      .tyden-1 {
-        font-size: 50%;
-      }
-
-      .tyden-2 {
-        font-size: 45%;
-      }
-
-      #ministranti-widget {
-        padding: 1.5rem;
-      }
-
-      .holky,
-      .kluci,
-      .spolecne {
-        font-size: 1.1em;
-      }
-
-      #info-box p {
-        font-size: 0.9em;
-      }
-
-      #skupina p,
-      #info-box p {
-        margin: 0.2em 0;
-      }
-    }
-  </style>
+@media (max-width: 600px) {
+  h3 { font-size: 0.7em; }
+  .tyden-0 { font-size: 60%; }
+  .tyden-1 { font-size: 50%; }
+  .tyden-2 { font-size: 45%; }
+  #ministranti-widget { padding: 1.5rem; }
+  .holky, .kluci, .spolecne { font-size: 1.1em; }
+  #info-box p { font-size: 0.9em; }
+  #skupina p, #info-box p { margin: 0.2em 0; }
+}
+</style>
 </head>
 <body>
-  <div id="ministranti-widget">
-    <h3>Kdo má službu?</h3>
-    <div id="skupina"></div>
+<div id="ministranti-widget">
+  <h3>Kdo má službu?</h3>
+  <div id="skupina"></div>
 
-    <div id="info-box">
-      <h4>Ostatní mše:</h4>
-      <p>Kluci i holky slouží <span class="spolecne">společně</span>, až na výjimky.</p>
-    </div>
+  <div id="info-box">
+    <h4>Ostatní mše:</h4>
+    <p>Kluci i holky slouží <span class="spolecne">společně</span>, až na výjimky.</p>
   </div>
+</div>
 
-  <script>
-    function zjistiSlužby() {
-      const ted = new Date();
-      const dnes = new Date(ted);
-      const denVTydnu = ted.getDay(); // 0 = neděle
-      const hodina = ted.getHours();
-      dnes.setHours(0, 0, 0, 0);
+<script>
+function zjistiSlužby() {
+  const ted = new Date();
+  const dnes = new Date(ted);
+  const denVTydnu = ted.getDay(); // 0 = neděle
+  const hodina = ted.getHours();
+  dnes.setHours(0, 0, 0, 0);
 
-      const skupinaElement = document.getElementById('skupina');
-      const options = { month: 'numeric', day: 'numeric' };
+  const skupinaElement = document.getElementById('skupina');
+  const options = { month: 'numeric', day: 'numeric' };
 
-      const start = new Date('2025-09-07'); // první neděle – kluci
-      const data = [];
-      let blokOffset = 0;
+  // Začneme první středu po daném datu (např. 10. 9. 2025)
+  const start = new Date('2025-09-10'); // první středa – kluci
+  const data = [];
+  let blokOffset = 0;
 
-      // Datum přechodu pouze na středy
-      const prechodoveDatum = new Date('2025-11-01');
-      prechodoveDatum.setHours(0, 0, 0, 0);
+  while (data.length < 6) {
+    const streda = new Date(start);
+    streda.setDate(start.getDate() + blokOffset * 7);
+    streda.setHours(0, 0, 0, 0);
 
-      while (data.length < 6) {
-        const nedele = new Date(start);
-        nedele.setDate(start.getDate() + blokOffset * 7);
-        nedele.setHours(0, 0, 0, 0);
+    // Zobrazit středu až do čtvrtka 5:00
+    const zobrazitStredu = (
+      streda > dnes ||
+      (denVTydnu === 3 && hodina < 24) ||
+      (denVTydnu === 4 && hodina < 5)
+    );
 
-        const streda = new Date(nedele);
-        streda.setDate(nedele.getDate() + 3);
-        streda.setHours(0, 0, 0, 0);
+    // Střídání kluci / holky
+    const skupinaStreda = (blokOffset % 2 === 0) ? 'kluci' : 'holky';
 
-        // Zobrazit aktuální neděli až do pondělí 5:00
-        const zobrazitNedelni = (
-          nedele > dnes ||
-          (denVTydnu === 0 && hodina < 24) ||
-          (denVTydnu === 1 && hodina < 5)
-        );
-
-        // Zobrazit středu až do čtvrtka 5:00
-        const zobrazitStredu = (
-          streda > dnes ||
-          (denVTydnu === 3 && hodina < 24) ||
-          (denVTydnu === 4 && hodina < 5)
-        );
-
-        // logika střídání:
-        // sudý blok → neděle kluci, středa holky, další neděle = holky
-        // lichý blok → neděle holky, středa kluci, další neděle = kluci
-        const skupinaNedele = (blokOffset % 2 === 0) ? 'kluci' : 'holky';
-        const skupinaStreda = (skupinaNedele === 'kluci') ? 'holky' : 'kluci';
-
-        // Přidat neděli pouze pokud je před 1.11.2025
-        if (zobrazitNedelni && nedele < prechodoveDatum) {
-          data.push({
-            den: 'Neděle (9:45)',
-            datum: nedele,
-            skupina: skupinaNedele
-          });
-        }
-
-        // Středy zobrazujeme vždy
-        if (zobrazitStredu) {
-          data.push({
-            den: 'Středa',
-            datum: streda,
-            skupina: skupinaStreda
-          });
-        }
-
-        // pro příští neděli se převezme středeční skupina
-        blokOffset++;
-      }
-
-      data.sort((a, b) => a.datum - b.datum);
-
-      const html = data.slice(0, 6).map((polozka, i) => {
-        const datumText = polozka.datum.toLocaleDateString('cs-CZ', options);
-        const skupinaClass = polozka.skupina;
-        return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${skupinaClass}">${polozka.skupina}</span></p>`;
-      });
-
-      skupinaElement.innerHTML = html.join('');
-
-      // Animace
-      const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4')];
-      vsechnyRadky.forEach((el, index) => {
-        el.style.opacity = 0;
-        el.style.transform = 'translateY(10px)';
-        el.style.animation = `fadeInUp 0.4s ease forwards`;
-        el.style.animationDelay = `${index * 0.2}s`;
-      });
-
-      // Zvýraznění "společně"
-      document.querySelectorAll('p').forEach(p => {
-        p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
+    if (zobrazitStredu) {
+      data.push({
+        den: 'Středa',
+        datum: streda,
+        skupina: skupinaStreda
       });
     }
 
-    zjistiSlužby();
-  </script>
+    blokOffset++;
+  }
+
+  data.sort((a, b) => a.datum - b.datum);
+
+  const html = data.slice(0, 6).map((polozka, i) => {
+    const datumText = polozka.datum.toLocaleDateString('cs-CZ', options);
+    const skupinaClass = polozka.skupina;
+    return `<p class="tyden-${Math.floor(i / 2)}">${polozka.den} ${datumText} – <span class="${skupinaClass}">${polozka.skupina}</span></p>`;
+  });
+
+  skupinaElement.innerHTML = html.join('');
+
+  // Animace
+  const vsechnyRadky = [...document.querySelectorAll('#ministranti-widget p, #ministranti-widget h3, #info-box h4')];
+  vsechnyRadky.forEach((el, index) => {
+    el.style.opacity = 0;
+    el.style.transform = 'translateY(10px)';
+    el.style.animation = `fadeInUp 0.4s ease forwards`;
+    el.style.animationDelay = `${index * 0.2}s`;
+  });
+
+  // Zvýraznění "společně"
+  document.querySelectorAll('p').forEach(p => {
+    p.innerHTML = p.innerHTML.replace(/\bspolečně\b/g, '<span class="spolecne">společně</span>');
+  });
+}
+
+zjistiSlužby();
+</script>
 </body>
 </html>
