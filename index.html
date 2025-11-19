@@ -102,35 +102,42 @@ h3 {
   </div>
 </div>
 
-<script>
+  <script>
 function zjistiSlužby() {
   const ted = new Date();
   const dnes = new Date(ted);
+  dnes.setHours(0, 0, 0, 0);
+
   const denVTydnu = ted.getDay(); // 0 = neděle
   const hodina = ted.getHours();
-  dnes.setHours(0, 0, 0, 0);
 
   const skupinaElement = document.getElementById('skupina');
   const options = { month: 'numeric', day: 'numeric' };
 
-  // Začneme první středu po daném datu (např. 10. 9. 2025)
-  const start = new Date('2025-09-03'); //29.10. bude kluci
+  // První středa v systému (3. 9. 2025)
+  const start = new Date('2025-09-03');
   const data = [];
   let blokOffset = 0;
+
+  // Zjištění "dnešní středy"
+  const dnesniStreda = new Date(dnes);
+  dnesniStreda.setDate(dnes.getDate() - ((denVTydnu + 4) % 7)); 
+  // (denVTydnu + 4) % 7 převede den týdne na offset od středy
 
   while (data.length < 6) {
     const streda = new Date(start);
     streda.setDate(start.getDate() + blokOffset * 7);
     streda.setHours(0, 0, 0, 0);
 
-    // Zobrazit středu až do čtvrtka 5:00
-    const zobrazitStredu = (
-      streda > dnes ||
-      (denVTydnu === 3 && hodina < 24) ||
-      (denVTydnu === 4 && hodina < 5)
-    );
+    const jeDnesniStreda = (streda.getTime() === dnesniStreda.getTime());
 
-    // Střídání kluci / holky
+    // Zobrazit středu pokud:
+    const zobrazitStredu =
+      streda > dnes ||                                     // budoucnost
+      (jeDnesniStreda && denVTydnu === 3) ||               // dnešní středa
+      (jeDnesniStreda && denVTydnu === 4 && hodina < 5);   // středa do čtvrtka 5:00
+
+    // Střídání kluci/holky
     const skupinaStreda = (blokOffset % 2 === 0) ? 'kluci' : 'holky';
 
     if (zobrazitStredu) {
@@ -144,8 +151,10 @@ function zjistiSlužby() {
     blokOffset++;
   }
 
+  // Seřadit podle data
   data.sort((a, b) => a.datum - b.datum);
 
+  // HTML výstup
   const html = data.slice(0, 6).map((polozka, i) => {
     const datumText = polozka.datum.toLocaleDateString('cs-CZ', options);
     const skupinaClass = polozka.skupina;
@@ -171,5 +180,6 @@ function zjistiSlužby() {
 
 zjistiSlužby();
 </script>
+
 </body>
 </html>
